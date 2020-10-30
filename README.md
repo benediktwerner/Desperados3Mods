@@ -2,6 +2,8 @@
 
 Collection of my mods for the game Desperados III.
 
+You can find me @1vader on the official [Desperados III](https://discord.gg/gDFNGzx) and [Mimimi](https://discord.gg/69ZxNTu) Discord servers for bug reports or ideas for improvements or new mods. Or you can just create and issue here.
+
 ## Mods Overview
 
 - **Convinience**: Gives the options to auto-mute the game when in the background and starting levels on full zoom level and/or with highlights enabled.
