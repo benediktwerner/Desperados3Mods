@@ -15,6 +15,6 @@ You can find me @1vader on the official [Desperados III](https://discord.gg/gDFN
 
 ## Installation
 
-Download the [Unity Mod Manager](https://www.nexusmods.com/site/mods/21) (at least version 0.22.10) and follow the instructions on its page.
+Download the [Unity Mod Manager](https://www.nexusmods.com/site/mods/21) (at least version 0.22.10) from NexusMods (use the Dropbox link in the Mirrors section if you don't have a NexusMod account and don't want to create one). Then follow the instructions on that page.
 
 You can download the mods from the [releases page](https://github.com/benediktwerner/Desperados3Mods/releases).
