@@ -1,0 +1,9 @@
+{
+  "Id": "KingsmanEasterEgg",
+  "DisplayName": "Kingsman Easter Egg Chance Modifier",
+  "Version": "1.0.0",
+  "EntryMethod": "KingsmanEasterEgg.Main.Load",
+  "Author": "benediktwerner",
+  "HomePage": "https://github.com/benediktwerner/Desperados3Mods",
+  "Repository": "https://raw.githubusercontent.com/benediktwerner/Desperados3Mods/master/Repository.json"
+}

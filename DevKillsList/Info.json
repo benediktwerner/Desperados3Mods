@@ -1,0 +1,9 @@
+{
+  "Id": "DevKillsList",
+  "DisplayName": "Show missing devs to kill for achievement",
+  "Version": "1.0.0",
+  "EntryMethod": "DevKillsList.Main.Load",
+  "Author": "benediktwerner",
+  "HomePage": "https://github.com/benediktwerner/Desperados3Mods",
+  "Repository": "https://raw.githubusercontent.com/benediktwerner/Desperados3Mods/master/Repository.json"
+}

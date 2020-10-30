@@ -13,4 +13,6 @@ Collection of my mods for the game Desperados III.
 
 ## Installation
 
-Download the [Unity Mod Manager](https://www.nexusmods.com/site/mods/21) (at least version 0.22.10) and follow the instructions on the page.
+Download the [Unity Mod Manager](https://www.nexusmods.com/site/mods/21) (at least version 0.22.10) and follow the instructions on its page.
+
+You can download the mods from the [releases page](https://github.com/benediktwerner/Desperados3Mods/releases).
