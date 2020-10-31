@@ -210,7 +210,7 @@ namespace ExtendedCheats
         [Header("Kate")]
         [Draw("Gun Range")] public ToggleableFloat katGunRange = new ToggleableFloat(false, 9);
         //[Draw("Gun Noise Radius")] public ToggleableFloat katGunNoise = new ToggleableFloat(false, 9);
-        [Draw("Blind Range")] public ToggleableFloat katBlindRange = new ToggleableFloat(false, 12);
+        [Draw("Perfume Range")] public ToggleableFloat katBlindRange = new ToggleableFloat(false, 12);
 
         [Header("Isabelle")]
         [Draw("Mind Control Range")] public ToggleableFloat vooControlRange = new ToggleableFloat(false, 10);
