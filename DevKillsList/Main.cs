@@ -7,9 +7,7 @@ namespace DevKillsList
 {
     public class Main
     {
-        private static Vector2 scrollViewVector = Vector2.zero;
-
-        static bool Load(ModEntry modEntry)
+        public static bool Load(ModEntry modEntry)
         {
             modEntry.OnGUI = OnGUI;
             return true;

@@ -11,7 +11,7 @@ namespace D1CooperGun
         public static Settings settings;
         public static ModEntry.ModLogger Logger;
 
-        static void Load(ModEntry modEntry)
+        public static void Load(ModEntry modEntry)
         {
             settings = ModSettings.Load<Settings>(modEntry);
 
@@ -35,7 +35,7 @@ namespace D1CooperGun
         static void OnSaveGUI(ModEntry modEntry) => settings.Save(modEntry);
     }
 
-    public struct State
+    struct State
     {
         public float originalCooldown;
         public bool isDoubleShot;
@@ -46,7 +46,7 @@ namespace D1CooperGun
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SkillGunAttackTwoShot), "execute")]
-        public static void SkillGunAttackTwoShot_execute_Prefix(ref SkillGunAttackTwoShot __instance, ref State __state, bool ___m_bTryExecuteTwoShot, PlanningModeCommand ___m_commandSecond, SkillGunAttackTwoShot ___m_skillGunOtherHand)
+        internal static void SkillGunAttackTwoShot_execute_Prefix(ref SkillGunAttackTwoShot __instance, ref State __state, bool ___m_bTryExecuteTwoShot, PlanningModeCommand ___m_commandSecond, SkillGunAttackTwoShot ___m_skillGunOtherHand)
         {
             if (Main.enabled)
             {
@@ -70,7 +70,7 @@ namespace D1CooperGun
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SkillGunAttackTwoShot), "execute")]
-        public static void SkillGunAttackTwoShot_execute_Postfix(ref SkillGunAttackTwoShot __instance, State __state, SkillGunAttackTwoShot ___m_skillGunOtherHand)
+        internal static void SkillGunAttackTwoShot_execute_Postfix(ref SkillGunAttackTwoShot __instance, State __state, SkillGunAttackTwoShot ___m_skillGunOtherHand)
         {
             if (Main.enabled)
             {
@@ -86,7 +86,7 @@ namespace D1CooperGun
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SkillGunAttack), "iMaxCount", MethodType.Getter)]
-        public static bool SkillGunAttack_get_iMaxCount(ref SkillGunAttack __instance, ref int __result)
+        internal static bool SkillGunAttack_get_iMaxCount(ref SkillGunAttack __instance, ref int __result)
         {
             if (Main.enabled && __instance is SkillGunAttackTwoShot)
             {

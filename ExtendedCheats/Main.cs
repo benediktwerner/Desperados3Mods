@@ -15,7 +15,7 @@ namespace ExtendedCheats
         public static Harmony harmony;
         public static bool isMultiKnockoutPatched = false;
 
-        static void Load(ModEntry modEntry)
+        public static void Load(ModEntry modEntry)
         {
             settings = ModSettings.Load<Settings>(modEntry);
 
@@ -77,7 +77,7 @@ namespace ExtendedCheats
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MiCharacterInventory), "HasItem")]
-        static bool HasItem(MiCharacterInventory.ItemType _itemType, ref bool __result)
+        internal static bool HasItem(MiCharacterInventory.ItemType _itemType, ref bool __result)
         {
             if (Main.enabled && Main.settings.infiniteAmmo)
             {
@@ -97,7 +97,7 @@ namespace ExtendedCheats
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MiCharacterInventory), "Count")]
-        static bool ItemCount(MiCharacterInventory.ItemType _itemType, ref uint __result)
+        internal static bool ItemCount(MiCharacterInventory.ItemType _itemType, ref uint __result)
         {
             if (Main.enabled && Main.settings.infiniteAmmo)
             {
@@ -117,7 +117,7 @@ namespace ExtendedCheats
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MiCharacter), "checkKnockoutTarget")]
-        static void CheckKnockoutTargetPrefix(ref MiCharacter _charTarget, ref float _fMaxRange)
+        internal static void CheckKnockoutTargetPrefix(ref MiCharacter _charTarget, ref float _fMaxRange)
         {
             if (Main.enabled)
             {
@@ -128,19 +128,9 @@ namespace ExtendedCheats
             }
         }
 
-        public static IEnumerable<CodeInstruction> CheckKnockoutCharInRangeTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var foundReturn = false;
-            foreach (var instr in instructions)
-            {
-                if (!foundReturn && instr.opcode == OpCodes.Ret) foundReturn = true;
-                else yield return instr;
-            }
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SkillData), "fRange", MethodType.Getter)]
-        static bool AbilityRange(ref SkillData __instance, ref float __result)
+        internal static bool AbilityRange(ref SkillData __instance, ref float __result)
         {
             if (Main.enabled)
             {

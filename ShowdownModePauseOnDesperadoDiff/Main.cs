@@ -10,7 +10,7 @@ namespace ShowdownModePauseOnDesperadoDiff
     {
         public static ModEntry.ModLogger Logger;
 
-        static void Load(ModEntry modEntry)
+        public static void Load(ModEntry modEntry)
         {
             Logger = modEntry.Logger;
 
@@ -22,7 +22,7 @@ namespace ShowdownModePauseOnDesperadoDiff
     [HarmonyPatch(typeof(UIConfirmDialogDifficulty), "onDifficultyChanged")]
     class Patch
     {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var index = 0;
 

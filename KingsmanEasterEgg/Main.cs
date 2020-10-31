@@ -10,7 +10,7 @@ namespace KingsmanEasterEgg
         public static bool enabled;
         public static Settings settings;
 
-        static void Load(ModEntry modEntry)
+        public static void Load(ModEntry modEntry)
         {
             settings = ModSettings.Load<Settings>(modEntry);
 
@@ -35,7 +35,7 @@ namespace KingsmanEasterEgg
     [HarmonyPatch(typeof(TriggerPercentage), "triggerOverride")]
     class Patch
     {
-        static void Prefix(TriggerPercentage __instance, out float __state)
+        internal static void Prefix(TriggerPercentage __instance, out float __state)
         {
             __state = __instance.m_fPercentage;
 
@@ -45,13 +45,13 @@ namespace KingsmanEasterEgg
             }
         }
 
-        static void Postfix(TriggerPercentage __instance, float __state)
+        internal static void Postfix(TriggerPercentage __instance, float __state)
         {
             __instance.m_fPercentage = __state;
         }
     }
 
-    public class Settings: ModSettings, IDrawable
+    public class Settings : ModSettings, IDrawable
     {
         [Draw("Chance for the Easter Egg to trigger in %", Min = 0, Max = 100)] public float chance = 100;
 
