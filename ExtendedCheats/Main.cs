@@ -43,7 +43,10 @@ namespace ExtendedCheats
         static void OnSaveGUI(ModEntry modEntry)
         {
             settings.Save(modEntry);
+        }
 
+        public static void OnSettingsChange()
+        {
             PatchMultiKnockout();
 
             MiSingletonScriptableObject<GlobalSettings>.instance.bEnableCheats = settings.enableCheats;
@@ -236,6 +239,10 @@ namespace ExtendedCheats
         [Draw("Enable extra dev options")] public bool enableDevExtra = true;
 
         public override void Save(ModEntry modEntry) => Save(this, modEntry);
-        public void OnChange() { }
+
+        public void OnChange()
+        {
+            Main.OnSettingsChange();
+        }
     }
 }
