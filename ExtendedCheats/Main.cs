@@ -1,65 +1,95 @@
-﻿using static UnityModManagerNet.UnityModManager;
+﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
-using System.Reflection;
-using UnityModManagerNet;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Desperados3Mods.ExtendedCheats
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static bool enabled;
-        public static Settings settings;
+        public const string GUID = "de.benediktwerner.desperados3.extendedcheats";
+        public const string Name = "ExtendedCheats";
+        public const string Version = "1.0";
+
+        public static ConfigEntry<bool> configEnabled;
+
+        public static ConfigEntry<bool> configInfiniteAmmo;
+
+        public static AbilityModifiers configAbilityModifiers;
+
+        public static ConfigEntry<ToggleableFloat> configCorpseThrowRange;
+        public static ConfigEntry<ToggleableFloat> configCorpseKnockoutRange;
+        public static ConfigEntry<bool> configMultiKnockOut;
+
+        public static ConfigEntry<bool> configEnableCheats;
+        public static ConfigEntry<bool> configEnableDev;
+        public static ConfigEntry<bool> configEnableDevExtra;
+
         public static Harmony harmony;
         public static bool isMultiKnockoutPatched = false;
 
-        public static void Load(ModEntry modEntry)
+        public void Awake()
         {
-            settings = ModSettings.Load<Settings>(modEntry);
+            TomlTypeConverter.AddConverter(typeof(ToggleableFloat), new TypeConverter
+            {
+                ConvertToObject = (str, type) =>
+                {
+                    var match = Regex.Match(str, @"\s*\[(false|true),\s*([\d.eE-])+", RegexOptions.IgnoreCase);
 
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
-            modEntry.OnToggle = OnToggle;
+                    if (!match.Success) throw new Exception("Invalid format. Expected '[bool, float]'");
 
-            harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+                    var enabled = match.Groups[1].Value.ToLower() == "true";
 
-            PatchMultiKnockout();
+                    return new ToggleableFloat(enabled, float.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture));
+                },
+                ConvertToString = (obj, type) =>
+                {
+                    var val = (ToggleableFloat)obj;
+                    return "[" + val.enabled + ", " + val.value.ToString(CultureInfo.InvariantCulture) + "]";
+                }
+            });
 
-            MiSingletonScriptableObject<GlobalSettings>.instance.bEnableCheats = settings.enableCheats;
-            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptions = settings.enableDev;
-            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptionsExtra = settings.enableDevExtra;
+            configEnabled = Config.Bind("General", "Enabled", true, new ConfigDescription("Enable/Disable all Cheats at once", null, new ConfigurationManagerAttributes { Category = "", Order = 100 }));
+
+            configInfiniteAmmo = Config.Bind("General", "Infinite Ammo", false, new ConfigDescription("Infinite Ammo", null, new ConfigurationManagerAttributes { Category = "", Order = 99 }));
+
+            configAbilityModifiers = new AbilityModifiers(Config);
+
+            configCorpseThrowRange = Config.BindToggleableFloat("2. Corpse Throwing", "Throw Range", new ToggleableFloat(false, 5));
+            configCorpseKnockoutRange = Config.BindToggleableFloat("2. Corpse Throwing", "Knockout Range", new ToggleableFloat(false, 2));
+            configMultiKnockOut = Config.Bind("2. Corpse Throwing", "Allow throws to knockout multiple enemies", false);
+
+            configEnableCheats = Config.Bind("1. Cheats and Dev options", "Enable Cheats", false);
+            configEnableDev = Config.Bind("1. Cheats and Dev options", "Enable Dev Options", false);
+            configEnableDevExtra = Config.Bind("1. Cheats and Dev options", "Enable Extra Dev Options", false);
+
+            harmony = Harmony.CreateAndPatchAll(typeof(Hooks));
+
+            OnSettingsChanged();
+
+            Config.SettingChanged += (_, __) => OnSettingsChanged();
         }
 
-        static bool OnToggle(ModEntry modEntry, bool enabled)
+        static void OnSettingsChanged()
         {
-            Main.enabled = enabled;
-            return true;
-        }
-
-        static void OnGUI(ModEntry modEntry) => settings.Draw(modEntry);
-        static void OnSaveGUI(ModEntry modEntry)
-        {
-            settings.Save(modEntry);
-        }
-
-        public static void OnSettingsChange()
-        {
-            PatchMultiKnockout();
-
-            MiSingletonScriptableObject<GlobalSettings>.instance.bEnableCheats = settings.enableCheats;
-            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptions = settings.enableDev;
-            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptionsExtra = settings.enableDevExtra;
+            //PatchMultiKnockout();
+            MiSingletonScriptableObject<GlobalSettings>.instance.bEnableCheats = configEnabled.Value && configEnableCheats.Value;
+            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptions = configEnabled.Value && configEnableDev.Value;
+            MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptionsExtra = configEnabled.Value && configEnableDevExtra.Value;
         }
 
         static void PatchMultiKnockout()
         {
             var original = AccessTools.Method(typeof(MiCharacter), "checkKnockoutCharInRange");
-            var transpiler = typeof(Patch).GetMethod("CheckKnockoutCharInRangeTranspiler");
+            var transpiler = typeof(Hooks).GetMethod("CheckKnockoutCharInRangeTranspiler");
 
-            if (enabled && settings.multiKnockOut)
+            if (configEnabled.Value && configMultiKnockOut.Value)
             {
                 if (!isMultiKnockoutPatched)
                 {
@@ -75,14 +105,23 @@ namespace Desperados3Mods.ExtendedCheats
         }
     }
 
-    [HarmonyPatch]
-    class Patch
+    class Hooks
     {
+        public static IEnumerable<CodeInstruction> CheckKnockoutCharInRangeTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var foundReturn = false;
+            foreach (var instr in instructions)
+            {
+                if (!foundReturn && instr.opcode == OpCodes.Ret) foundReturn = true;
+                else yield return instr;
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MiCharacterInventory), "HasItem")]
         internal static bool HasItem(MiCharacterInventory.ItemType _itemType, ref bool __result)
         {
-            if (Main.enabled && Main.settings.infiniteAmmo)
+            if (Main.configEnabled.Value && Main.configInfiniteAmmo.Value)
             {
                 switch (_itemType)
                 {
@@ -102,7 +141,7 @@ namespace Desperados3Mods.ExtendedCheats
         [HarmonyPatch(typeof(MiCharacterInventory), "Count")]
         internal static bool ItemCount(MiCharacterInventory.ItemType _itemType, ref uint __result)
         {
-            if (Main.enabled && Main.settings.infiniteAmmo)
+            if (Main.configEnabled.Value && Main.configInfiniteAmmo.Value)
             {
                 switch (_itemType)
                 {
@@ -122,55 +161,54 @@ namespace Desperados3Mods.ExtendedCheats
         [HarmonyPatch(typeof(MiCharacter), "checkKnockoutTarget")]
         internal static void CheckKnockoutTargetPrefix(ref MiCharacter _charTarget, ref float _fMaxRange)
         {
-            if (Main.enabled)
+            if (Main.configEnabled.Value)
             {
-                Main.settings.corpseKnockoutRange.SetIfEnabled(ref _fMaxRange);
+                Main.configCorpseKnockoutRange.SetIfEnabled(ref _fMaxRange);
 
-                if (Main.settings.multiKnockOut)
+                if (Main.configMultiKnockOut.Value)
                     _charTarget = null;
             }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SkillData), "fRange", MethodType.Getter)]
-        internal static bool AbilityRange(ref SkillData __instance, ref float __result)
+        internal static bool AbilityRange(SkillData __instance, ref float __result)
         {
-            if (Main.enabled)
+            if (Main.configEnabled.Value)
             {
                 switch (__instance.name)
                 {
-                    case "SkillCpyKeyThrowKnife": return !Main.settings.abilityModifiers.cpyThrowKnifeRange.SetIfEnabled(ref __result);
+                    case "SkillCpyKeyThrowKnife": return !Main.configAbilityModifiers.cpyThrowKnifeRange.SetIfEnabled(ref __result);
 
-                    case "SkillCopKeyThrowKnife": return !Main.settings.abilityModifiers.copThrowKnifeRange.SetIfEnabled(ref __result);
-                    case "SkillCopKeyWhistleStone": return !Main.settings.abilityModifiers.copWhistleStoneRange.SetIfEnabled(ref __result);
-                    case "SkillCopKeyGunLeft": return !Main.settings.abilityModifiers.copGunLeftRange.SetIfEnabled(ref __result);
-                    case "SkillCopKeyGunRight": return !Main.settings.abilityModifiers.copGunRightRange.SetIfEnabled(ref __result);
+                    case "SkillCopKeyThrowKnife": return !Main.configAbilityModifiers.copThrowKnifeRange.SetIfEnabled(ref __result);
+                    case "SkillCopKeyWhistleStone": return !Main.configAbilityModifiers.copWhistleStoneRange.SetIfEnabled(ref __result);
+                    case "SkillCopKeyGunLeft": return !Main.configAbilityModifiers.copGunLeftRange.SetIfEnabled(ref __result);
+                    case "SkillCopKeyGunRight": return !Main.configAbilityModifiers.copGunRightRange.SetIfEnabled(ref __result);
 
-                    case "SkillMccKeyGun": return !Main.settings.abilityModifiers.mccGunRange.SetIfEnabled(ref __result);
-                    case "SkillMccKeyStunbox": return !Main.settings.abilityModifiers.mccStunboxRange.SetIfEnabled(ref __result);
-                    case "SkillMccKeyStunGrenade": return !Main.settings.abilityModifiers.mccStunGrenadeRange.SetIfEnabled(ref __result);
+                    case "SkillMccKeyGun": return !Main.configAbilityModifiers.mccGunRange.SetIfEnabled(ref __result);
+                    case "SkillMccKeyStunbox": return !Main.configAbilityModifiers.mccStunboxRange.SetIfEnabled(ref __result);
+                    case "SkillMccKeyStunGrenade": return !Main.configAbilityModifiers.mccStunGrenadeRange.SetIfEnabled(ref __result);
 
-                    case "SkillTraKeyGun": return !Main.settings.abilityModifiers.traGunRange.SetIfEnabled(ref __result);
+                    case "SkillTraKeyGun": return !Main.configAbilityModifiers.traGunRange.SetIfEnabled(ref __result);
 
-                    case "SkillKatKeyGun": return !Main.settings.abilityModifiers.katGunRange.SetIfEnabled(ref __result);
-                    case "SkillKatKeyBlind": return !Main.settings.abilityModifiers.katBlindRange.SetIfEnabled(ref __result);
+                    case "SkillKatKeyGun": return !Main.configAbilityModifiers.katGunRange.SetIfEnabled(ref __result);
+                    case "SkillKatKeyBlind": return !Main.configAbilityModifiers.katBlindRange.SetIfEnabled(ref __result);
 
-                    case "SkillVooKeyControl": return !Main.settings.abilityModifiers.vooControlRange.SetIfEnabled(ref __result);
-                    case "SkillVooKeyConnect": return !Main.settings.abilityModifiers.vooConnectRange.SetIfEnabled(ref __result);
-                    case "SkillVooKeyPet": return !Main.settings.abilityModifiers.vooPetRange.SetIfEnabled(ref __result);
+                    case "SkillVooKeyControl": return !Main.configAbilityModifiers.vooControlRange.SetIfEnabled(ref __result);
+                    case "SkillVooKeyConnect": return !Main.configAbilityModifiers.vooConnectRange.SetIfEnabled(ref __result);
+                    case "SkillVooKeyPet": return !Main.configAbilityModifiers.vooPetRange.SetIfEnabled(ref __result);
 
-                    case "SkillCarryThrow": return !Main.settings.corpseThrowRange.SetIfEnabled(ref __result);
+                    case "SkillCarryThrow": return !Main.configCorpseThrowRange.SetIfEnabled(ref __result);
                 }
             }
             return true;
         }
     }
 
-    [Horizontal]
     public struct ToggleableFloat
     {
-        [Draw("")] public bool enabled;
-        [Draw("", VisibleOn = "enabled|true")] public float value;
+        public bool enabled;
+        public float value;
 
         public ToggleableFloat(bool initialEnabled, float initialValue)
         {
@@ -183,66 +221,102 @@ namespace Desperados3Mods.ExtendedCheats
             if (enabled) value = this.value;
             return enabled;
         }
+
+        internal static void Draw(ConfigEntryBase entry)
+        {
+            var self = (ToggleableFloat)entry.BoxedValue;
+            if (self.enabled = GUILayout.Toggle(self.enabled, self.enabled ? "Overwrite" : "Disabled"))
+            {
+                var str = GUILayout.TextField(self.value.ToString("f2"));
+                if (string.IsNullOrEmpty(str))
+                    self.value = 0;
+                else
+                {
+                    if (float.TryParse(str, System.Globalization.NumberStyles.Float, System.Globalization.NumberFormatInfo.CurrentInfo, out var num))
+                    {
+                        self.value = num;
+                    }
+                    else
+                    {
+                        self.value = 0;
+                    }
+                }
+            }
+            entry.BoxedValue = self;
+        }
+    }
+
+    static class Extensions
+    {
+        internal static ConfigEntry<ToggleableFloat> BindToggleableFloat(this ConfigFile config, string category, string description, ToggleableFloat initial)
+        {
+            return config.Bind(category, description, initial,
+                new ConfigDescription(description, null,
+                    new ConfigurationManagerAttributes
+                    {
+                        CustomDrawer = ToggleableFloat.Draw,
+                        DefaultValue = initial,
+                    }
+                )
+            );
+        }
+
+        internal static bool SetIfEnabled(this ConfigEntry<ToggleableFloat> entry, ref float value)
+        {
+            return entry.Value.SetIfEnabled(ref value);
+        }
     }
 
     public class AbilityModifiers
     {
-        [Header("Young Cooper")]
-        [Draw("Throw Knife Range")] public ToggleableFloat cpyThrowKnifeRange = new ToggleableFloat(false, 8); // SkillCpyKeyThrowKnife
-        //[Draw("Throw Knife Noise Radius")] public ToggleableFloat cpyThrowKnifeNoise = new ToggleableFloat(false, 8); // SkillCpyKeyThrowKnife
+        public ConfigEntry<ToggleableFloat> cpyThrowKnifeRange;
+        // public ConfigEntry<ToggleableFloat> cpyThrowKnifeNoise;
 
-        [Header("Cooper")]
-        [Draw("Knife Throw Range")] public ToggleableFloat copThrowKnifeRange = new ToggleableFloat(false, 12);
-        [Draw("Coin Range")] public ToggleableFloat copWhistleStoneRange = new ToggleableFloat(false, 12);
-        //[Draw("Coin Noise Radius")] public ToggleableFloat copWhistleStoneNoise = new ToggleableFloat(false, 12);
-        [Draw("Left Gun Range")] public ToggleableFloat copGunLeftRange = new ToggleableFloat(false, 17);
-        //[Draw("Left Gun Noise Radius")] public ToggleableFloat copGunLeftNoise = new ToggleableFloat(false, 17);
-        [Draw("Right Gun Range")] public ToggleableFloat copGunRightRange = new ToggleableFloat(false, 17);
-        //[Draw("Right Gun Noise Radius")] public ToggleableFloat copGunRightNoise = new ToggleableFloat(false, 17);
+        public ConfigEntry<ToggleableFloat> copThrowKnifeRange;
+        public ConfigEntry<ToggleableFloat> copWhistleStoneRange;
+        // public ConfigEntry<ToggleableFloat> copWhistleStoneNoise;
+        public ConfigEntry<ToggleableFloat> copGunLeftRange;
+        // public ConfigEntry<ToggleableFloat> copGunLeftNoise;
+        public ConfigEntry<ToggleableFloat> copGunRightRange;
+        // public ConfigEntry<ToggleableFloat> copGunRightNoise;
 
-        [Header("Doc McCoy")]
-        [Draw("Gun Range")] public ToggleableFloat mccGunRange = new ToggleableFloat(false, 55);
-        //[Draw("Gun Noise Radius")] public ToggleableFloat mccGunNoise = new ToggleableFloat(false, 55);
-        [Draw("Bag Range")] public ToggleableFloat mccStunboxRange = new ToggleableFloat(false, 5);
-        [Draw("Gas Range")] public ToggleableFloat mccStunGrenadeRange = new ToggleableFloat(false, 8);
+        public ConfigEntry<ToggleableFloat> mccGunRange;
+        // public ConfigEntry<ToggleableFloat> mccGunNoise;
+        public ConfigEntry<ToggleableFloat> mccStunboxRange;
+        public ConfigEntry<ToggleableFloat> mccStunGrenadeRange;
 
-        [Header("Hector")]
-        [Draw("Gun Range")] public ToggleableFloat traGunRange = new ToggleableFloat(false, 12);
-        //[Draw("Gun Noise Radius")] public ToggleableFloat traGunNoise = new ToggleableFloat(false, 12);
+        public ConfigEntry<ToggleableFloat> traGunRange;
+        // public ConfigEntry<ToggleableFloat> traGunNoise;
 
-        [Header("Kate")]
-        [Draw("Gun Range")] public ToggleableFloat katGunRange = new ToggleableFloat(false, 9);
-        //[Draw("Gun Noise Radius")] public ToggleableFloat katGunNoise = new ToggleableFloat(false, 9);
-        [Draw("Perfume Range")] public ToggleableFloat katBlindRange = new ToggleableFloat(false, 12);
+        public ConfigEntry<ToggleableFloat> katGunRange;
+        // public ConfigEntry<ToggleableFloat> katGunNoise;
+        public ConfigEntry<ToggleableFloat> katBlindRange;
 
-        [Header("Isabelle")]
-        [Draw("Mind Control Range")] public ToggleableFloat vooControlRange = new ToggleableFloat(false, 10);
-        [Draw("Connect Range")] public ToggleableFloat vooConnectRange = new ToggleableFloat(false, 10);
-        [Draw("Cat Range")] public ToggleableFloat vooPetRange = new ToggleableFloat(false, 14);
-    }
+        public ConfigEntry<ToggleableFloat> vooControlRange;
+        public ConfigEntry<ToggleableFloat> vooConnectRange;
+        public ConfigEntry<ToggleableFloat> vooPetRange;
 
-    public class Settings : ModSettings, IDrawable
-    {
-        [Draw("Infinite Ammo")] public bool infiniteAmmo = true;
-
-        [Header("Abilities")]
-        [Draw("", Collapsible = true)] public AbilityModifiers abilityModifiers = new AbilityModifiers();
-
-        [Header("Corpse Throwing"), Space(5)]
-        [Draw("Throw Range")] public ToggleableFloat corpseThrowRange = new ToggleableFloat(false, 5);
-        [Draw("Knockout Range")] public ToggleableFloat corpseKnockoutRange = new ToggleableFloat(false, 2);
-        [Draw("Allow a throw to knockout more than one enemy")] public bool multiKnockOut = true;
-
-        [Header("Cheats and Dev options")]
-        [Draw("Enable cheats")] public bool enableCheats = false;
-        [Draw("Enable dev options")] public bool enableDev = true;
-        [Draw("Enable extra dev options")] public bool enableDevExtra = true;
-
-        public override void Save(ModEntry modEntry) => Save(this, modEntry);
-
-        public void OnChange()
+        public AbilityModifiers(ConfigFile config)
         {
-            Main.OnSettingsChange();
+            cpyThrowKnifeRange = config.BindToggleableFloat("3. Skills", "Cooper Young Throw Knife Range", new ToggleableFloat(false, 8));
+
+            copThrowKnifeRange = config.BindToggleableFloat("3. Skills", "Cooper Knife Throw Range", new ToggleableFloat(false, 12));
+            copWhistleStoneRange = config.BindToggleableFloat("3. Skills", "Cooper Coin Range", new ToggleableFloat(false, 12));
+            copGunLeftRange = config.BindToggleableFloat("3. Skills", "Cooper Left Gun Range", new ToggleableFloat(false, 17));
+            copGunRightRange = config.BindToggleableFloat("3. Skills", "Cooper Right Gun Range", new ToggleableFloat(false, 17));
+
+            mccGunRange = config.BindToggleableFloat("3. Skills", "McCoy Gun Range", new ToggleableFloat(false, 55));
+            mccStunboxRange = config.BindToggleableFloat("3. Skills", "McCoy Bag Range", new ToggleableFloat(false, 5));
+            mccStunGrenadeRange = config.BindToggleableFloat("3. Skills", "McCoy Gas Range", new ToggleableFloat(false, 8));
+
+            traGunRange = config.BindToggleableFloat("3. Skills", "Hector Gun Range", new ToggleableFloat(false, 12));
+
+            katGunRange = config.BindToggleableFloat("3. Skills", "Kate Gun Range", new ToggleableFloat(false, 9));
+            katBlindRange = config.BindToggleableFloat("3. Skills", "Kate Perfume Range", new ToggleableFloat(false, 12));
+
+            vooControlRange = config.BindToggleableFloat("3. Skills", "Isabelle Mind Control Range", new ToggleableFloat(false, 10));
+            vooConnectRange = config.BindToggleableFloat("3. Skills", "Isabelle Connect Range", new ToggleableFloat(false, 10));
+            vooPetRange = config.BindToggleableFloat("3. Skills", "Isabelle Cat Range", new ToggleableFloat(false, 14));
         }
     }
 }

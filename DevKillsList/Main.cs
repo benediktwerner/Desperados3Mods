@@ -1,48 +1,64 @@
-﻿using UnityEngine;
-using static UnityModManagerNet.UnityModManager;
+﻿using BepInEx;
+using BepInEx.Configuration;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
 namespace Desperados3Mods.DevKillsList
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static bool Load(ModEntry modEntry)
+        public const string GUID = "de.benediktwerner.desperados3.devkilllist";
+        public const string Name = "DevKillList";
+        public const string Version = "1.0";
+
+        void Awake()
         {
-            modEntry.OnGUI = OnGUI;
-            return true;
+            Config.Bind("General", "Devs List", false,
+                new ConfigDescription("Dev List", null,
+                    new ConfigurationManagerAttributes
+                    {
+                        CustomDrawer = DrawList,
+                        HideDefaultButton = true,
+                        HideSettingName = true
+                    }
+                )
+            );
         }
 
-        static void OnGUI(ModEntry modEntry)
+        static void DrawList(ConfigEntryBase entry)
         {
             try
             {
                 var achievement = GetBountyHunterAchievement();
                 if (achievement.m_eCompletedState == MiCoreServices.AchievementBase.CompleteState.Completed)
-                    GUILayout.Label("Achievement completed. You killed all the devs!");
+                    GUILayout.Label("Achievement completed. You killed all the devs!", GUILayout.ExpandWidth(true));
                 else if (achievement.m_eCompletedState == MiCoreServices.AchievementBase.CompleteState.CompletingAwaitingApiCall)
-                    GUILayout.Label("Achievement completed. You killed all the devs! (The achievement is still in the process of being registered)");
+                    GUILayout.Label("Achievement completed. You killed all the devs! (The achievement is still in the process of being registered)", GUILayout.ExpandWidth(true));
                 else
                 {
                     var done = achievement.m_lGUIDsTriggered.Count;
                     var total = Dev.DEVS.Length;
-                    GUILayout.Label("You found " + done + "/" + total + " devs. " + (total - done) + " are still missing:");
+                    GUILayout.BeginVertical();
+                    GUILayout.Label("You found " + done + "/" + total + " devs. " + (total - done) + " are still missing:", GUILayout.ExpandWidth(true));
                     foreach (var dev in Dev.DEVS)
                     {
                         if (!achievement.m_lGUIDsTriggered.Contains(dev.guid))
                         {
-                            GUILayout.BeginHorizontal();
+                            GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true));
                             GUILayout.Label(Dev.LEVEL_NAMES[dev.level], GUILayout.Width(200));
                             GUILayout.Label(dev.nick);
                             GUILayout.EndHorizontal();
                         }
                     }
-                    GUILayout.Label("Check https://www.trueachievements.com/a298714/veteran-bounty-hunter-achievement for the exact locations.");
+                    GUILayout.Label("Check https://www.trueachievements.com/a298714/veteran-bounty-hunter-achievement for the exact locations.", GUILayout.ExpandWidth(true));
+                    GUILayout.EndVertical();
                 }
             }
             catch (Exception e)
             {
-                GUILayout.Label("Error: " + e.Message);
+                GUILayout.Label("Error: " + e.Message, GUILayout.ExpandWidth(true));
             }
         }
 

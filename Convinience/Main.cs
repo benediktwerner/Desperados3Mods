@@ -1,122 +1,92 @@
-﻿using static UnityModManagerNet.UnityModManager;
+using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
-using System.Reflection;
-using UnityModManagerNet;
+using UnityEngine;
 
 namespace Desperados3Mods.Convinience
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static bool enabled;
-        public static Settings settings;
+        public const string GUID = "de.benediktwerner.desperados3.convinience";
+        public const string Name = "Convinience";
+        public const string Version = "1.0";
 
-        public static void Load(ModEntry modEntry)
+        static ConfigEntry<bool> configStartHighlights;
+        static ConfigEntry<bool> configStartZoom;
+        static ConfigEntry<bool> configMuteMusicInBackground;
+
+        static float? originalVolume = null;
+
+        void Awake()
         {
-            settings = ModSettings.Load<Settings>(modEntry);
+            configStartHighlights = Config.Bind("General", "Start Highlights On", false);
+            configStartZoom = Config.Bind("General", "Start Zoomed Out", false);
+            configMuteMusicInBackground = Config.Bind("General", "Mute Music when in Background", false);
 
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
-            modEntry.OnToggle = OnToggle;
-
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            Harmony.CreateAndPatchAll(typeof(Hooks));
         }
 
-        static bool OnToggle(ModEntry modEntry, bool enabled)
+        internal void OnApplicationFocus(bool hasFocus)
         {
-            Main.enabled = enabled;
-
-            MiSingletonMonoResource<GlobalUnityListener>.instance.m_evOnApplicationFocus -= MuteMusic;
-
-            if (enabled && settings.muteMusicInBackground)
-                MiSingletonMonoResource<GlobalUnityListener>.instance.m_evOnApplicationFocus += MuteMusic;
-
-            return true;
-        }
-
-        static void OnGUI(ModEntry modEntry) => settings.Draw(modEntry);
-        static void OnSaveGUI(ModEntry modEntry)
-        {
-            settings.Save(modEntry);
-
-            MiSingletonMonoResource<GlobalUnityListener>.instance.m_evOnApplicationFocus -= MuteMusic;
-
-            if (settings.muteMusicInBackground)
-                MiSingletonMonoResource<GlobalUnityListener>.instance.m_evOnApplicationFocus += MuteMusic;
-        }
-
-        static float previousMasterVolume;
-
-        static void MuteMusic(bool focus)
-        {
-            if (focus)
+            if (hasFocus)
             {
-                MiAudioMixer.s_fVolumeMaster = previousMasterVolume;
+                if (originalVolume != null)
+                    AudioListener.volume = (float)originalVolume;
+                originalVolume = null;
             }
-            else
+            else if (configMuteMusicInBackground.Value)
             {
-                previousMasterVolume = MiAudioMixer.s_fVolumeMaster;
-                MiAudioMixer.s_fVolumeMaster = 0;
-            }
-            MiSingletonMonoResource<MiAudioMixer>.instance.applySettings();
-        }
-    }
-
-    [HarmonyPatch]
-    class Patch
-    {
-        static bool needToEnableHighlights = false;
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MiGameInput), "MiStart")]
-        internal static void MiGameInput_MiStart()
-        {
-            needToEnableHighlights = Main.enabled && Main.settings.startHighlights;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MiGameInput), "MiUpdate")]
-        internal static void MiGameInput_MiUpdate(MiGameInput __instance)
-        {
-            if (needToEnableHighlights)
-            {
-                needToEnableHighlights = false;
-                __instance.toggleHighlightAllActiveUI();
+                originalVolume = AudioListener.volume;
+                AudioListener.volume = 0;
             }
         }
 
-        static bool zoomOutNext = false;
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MiCamBirdviewGameTactics), "MiStart")]
-        internal static void MiCamBirdviewGameTactics_MiStart()
+        static class Hooks
         {
-            zoomOutNext = true;
-        }
+            static bool needToEnableHighlights = false;
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MiCamBirdviewGameTactics), "Update")]
-        internal static void MiCamBirdviewGameTactics_Update(MiCamBirdviewGameTactics __instance)
-        {
-            if (Main.enabled && Main.settings.startZoom)
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MiGameInput), "MiStart")]
+            internal static void MiGameInput_MiStart()
             {
-                if (MiCamHandler.bCutsceneMode) zoomOutNext = true;
-                else if (zoomOutNext)
+                needToEnableHighlights = configStartHighlights.Value;
+            }
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MiGameInput), "MiUpdate")]
+            internal static void MiGameInput_MiUpdate(MiGameInput __instance)
+            {
+                if (needToEnableHighlights)
                 {
-                    __instance.fZoomHeight = __instance.FMaxHeight;
-                    zoomOutNext = false;
+                    needToEnableHighlights = false;
+                    __instance.toggleHighlightAllActiveUI();
+                }
+            }
+
+            static bool zoomOutNext = false;
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MiCamBirdviewGameTactics), "MiStart")]
+            internal static void MiCamBirdviewGameTactics_MiStart()
+            {
+                zoomOutNext = true;
+            }
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MiCamBirdviewGameTactics), "Update")]
+            internal static void MiCamBirdviewGameTactics_Update(MiCamBirdviewGameTactics __instance)
+            {
+                if (configStartZoom.Value)
+                {
+                    if (MiCamHandler.bCutsceneMode) zoomOutNext = true;
+                    else if (zoomOutNext)
+                    {
+                        __instance.fZoomHeight = __instance.FMaxHeight;
+                        zoomOutNext = false;
+                    }
                 }
             }
         }
-    }
-
-    public class Settings : ModSettings, IDrawable
-    {
-        [Draw("Start Highlights On")] public bool startHighlights = false;
-        [Draw("Start Zoomed Out")] public bool startZoom = false;
-        [Draw("Mute Music when in Background")] public bool muteMusicInBackground = false;
-
-        public override void Save(ModEntry modEntry) => Save(this, modEntry);
-        public void OnChange() { }
     }
 }

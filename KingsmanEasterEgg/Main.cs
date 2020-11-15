@@ -1,62 +1,35 @@
-﻿using static UnityModManagerNet.UnityModManager;
+﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
-using System.Reflection;
-using UnityModManagerNet;
+using UnityEngine;
 
 namespace Desperados3Mods.KingsmanEasterEgg
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static bool enabled;
-        public static Settings settings;
+        public const string GUID = "de.benediktwerner.desperados3.kingsmaneasteregg";
+        public const string Name = "KingsmanEasterEgg";
+        public const string Version = "1.0";
 
-        public static void Load(ModEntry modEntry)
+        public static ConfigEntry<float> configProbability;
+
+        public void Awake()
         {
-            settings = ModSettings.Load<Settings>(modEntry);
+            configProbability = Config.Bind("General", "TriggerChancePercent", 20f,
+                new ConfigDescription("Chance for the Easter Egg to trigger in %", new AcceptableValueRange<float>(0f, 100f))
+            );
 
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
-            modEntry.OnToggle = OnToggle;
-
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            Harmony.CreateAndPatchAll(typeof(Hooks));
         }
-
-        static bool OnToggle(ModEntry modEntry, bool enabled)
-        {
-            Main.enabled = enabled;
-            return true;
-        }
-
-        static void OnGUI(ModEntry modEntry) => settings.Draw(modEntry);
-        static void OnSaveGUI(ModEntry modEntry) => settings.Save(modEntry);
     }
 
     [HarmonyPatch(typeof(TriggerPercentage), "triggerOverride")]
-    class Patch
+    class Hooks
     {
-        internal static void Prefix(TriggerPercentage __instance, out float __state)
+        internal static void Prefix(TriggerPercentage __instance)
         {
-            __state = __instance.m_fPercentage;
-
-            if (Main.enabled)
-            {
-                __instance.m_fPercentage = Main.settings.chance;
-            }
+            __instance.m_fPercentage = Mathf.Clamp(Main.configProbability.Value, 0, 100);
         }
-
-        internal static void Postfix(TriggerPercentage __instance, float __state)
-        {
-            __instance.m_fPercentage = __state;
-        }
-    }
-
-    public class Settings : ModSettings, IDrawable
-    {
-        [Draw("Chance for the Easter Egg to trigger in %", Min = 0, Max = 100)] public float chance = 100;
-
-        public override void Save(ModEntry modEntry) => Save(this, modEntry);
-
-        public void OnChange() { }
     }
 }

@@ -1,38 +1,30 @@
-﻿using static UnityModManagerNet.UnityModManager;
+﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
-using System.Reflection;
-using UnityModManagerNet;
 
 namespace Desperados3Mods.D1CooperGun
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static bool enabled;
-        public static Settings settings;
-        public static ModEntry.ModLogger Logger;
+        public const string GUID = "de.benediktwerner.desperados3.d1coopergun";
+        public const string Name = "D1CooperGun";
+        public const string Version = "1.0";
 
-        public static void Load(ModEntry modEntry)
+        public static ConfigEntry<bool> configEnabled;
+        public static ConfigEntry<int> configAmmo ;
+        public static ConfigEntry<float> configCooldownShot;
+        public static ConfigEntry<float> configCooldownReload;
+
+        void Awake()
         {
-            settings = ModSettings.Load<Settings>(modEntry);
+            configEnabled = Config.Bind("General", "Enabled", true, new ConfigDescription("Enabled", null, new ConfigurationManagerAttributes { Order = 100 }));
+            configAmmo = Config.Bind("General", "Ammo", 6);
+            configCooldownShot = Config.Bind("General", "Shot Cooldown", 0.25f);
+            configCooldownReload = Config.Bind("General", "Reload Cooldown", 10f);
 
-            Logger = modEntry.Logger;
-
-            modEntry.OnGUI = OnGUI;
-            modEntry.OnSaveGUI = OnSaveGUI;
-            modEntry.OnToggle = OnToggle;
-
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            Harmony.CreateAndPatchAll(typeof(Hooks));
         }
-
-        static bool OnToggle(ModEntry modEntry, bool enabled)
-        {
-            Main.enabled = enabled;
-            return true;
-        }
-
-        static void OnGUI(ModEntry modEntry) => settings.Draw(modEntry);
-        static void OnSaveGUI(ModEntry modEntry) => settings.Save(modEntry);
     }
 
     struct State
@@ -41,14 +33,13 @@ namespace Desperados3Mods.D1CooperGun
         public bool isDoubleShot;
     }
 
-    [HarmonyPatch]
-    class Patch
+    class Hooks
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SkillGunAttackTwoShot), "execute")]
         internal static void SkillGunAttackTwoShot_execute_Prefix(ref SkillGunAttackTwoShot __instance, ref State __state, bool ___m_bTryExecuteTwoShot, PlanningModeCommand ___m_commandSecond, SkillGunAttackTwoShot ___m_skillGunOtherHand)
         {
-            if (Main.enabled)
+            if (Main.configEnabled.Value)
             {
                 __state = new State
                 {
@@ -56,10 +47,8 @@ namespace Desperados3Mods.D1CooperGun
                     isDoubleShot = ___m_bTryExecuteTwoShot && !___m_commandSecond.bExecute && ___m_commandSecond.skill.bIsInRange(___m_commandSecond.skillCommand) && SkillThrow.bValidRaycast(__instance.character, __instance, ___m_commandSecond.skillCommand.m_MiCharacterTarget, true, null),
                 };
 
-                Main.Logger.Log("pre-execute: " + __state.isDoubleShot + " - " + __instance.iCount);
-
                 var needReload = __state.isDoubleShot ? __instance.iCount == 2 : __instance.iCount == 1;
-                var cooldown = needReload ? Main.settings.cooldownReload : Main.settings.cooldownShot;
+                var cooldown = needReload ? Main.configCooldownReload.Value : Main.configCooldownShot.Value;
 
                 __instance.m_skillRangedData.m_fCooldown = cooldown;
                 ___m_skillGunOtherHand.m_skillRangedData.m_fCooldown = cooldown;
@@ -72,12 +61,11 @@ namespace Desperados3Mods.D1CooperGun
         [HarmonyPatch(typeof(SkillGunAttackTwoShot), "execute")]
         internal static void SkillGunAttackTwoShot_execute_Postfix(ref SkillGunAttackTwoShot __instance, State __state, SkillGunAttackTwoShot ___m_skillGunOtherHand)
         {
-            if (Main.enabled)
+            if (Main.configEnabled.Value)
             {
-                Main.Logger.Log("post-execute: " + __state.isDoubleShot + " - " + __instance.iCount);
                 if (__state.isDoubleShot && __instance.iCount == 2 || __instance.iCount == 0)
                 {
-                    __instance.character.m_charInventory.Insert(MiCharacterInventory.ItemType.GunAmmo, (uint)Main.settings.ammo, true, true);
+                    __instance.character.m_charInventory.Insert(MiCharacterInventory.ItemType.GunAmmo, (uint)Main.configAmmo.Value, true, true);
                 }
                 __instance.m_skillRangedData.m_fCooldown = __state.originalCooldown;
                 ___m_skillGunOtherHand.m_skillRangedData.m_fCooldown = __state.originalCooldown;
@@ -88,23 +76,12 @@ namespace Desperados3Mods.D1CooperGun
         [HarmonyPatch(typeof(SkillGunAttack), "iMaxCount", MethodType.Getter)]
         internal static bool SkillGunAttack_get_iMaxCount(ref SkillGunAttack __instance, ref int __result)
         {
-            if (Main.enabled && __instance is SkillGunAttackTwoShot)
+            if (Main.configEnabled.Value && __instance is SkillGunAttackTwoShot)
             {
-                __result = Main.settings.ammo;
+                __result = Main.configAmmo.Value;
                 return false;
             }
             return true;
         }
-    }
-
-    public class Settings : ModSettings, IDrawable
-    {
-        [Draw("Ammo", Min = 2)] public int ammo = 6;
-        [Draw("Shot Cooldown", Min = 0)] public float cooldownShot = 0.25f;
-        [Draw("Reload Cooldown", Min = 0)] public float cooldownReload = 10f;
-
-        public override void Save(ModEntry modEntry) => Save(this, modEntry);
-
-        public void OnChange() { }
     }
 }

@@ -1,26 +1,28 @@
-﻿using static UnityModManagerNet.UnityModManager;
+﻿using BepInEx;
 using HarmonyLib;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
 namespace Desperados3Mods.ShowdownModePauseOnDesperadoDiff
 {
-    public class Main
+    [BepInPlugin(GUID, Name, Version)]
+    public class Main : BaseUnityPlugin
     {
-        public static ModEntry.ModLogger Logger;
+        public const string GUID = "de.benediktwerner.desperados3.showdownmodepauseondesperadodiff";
+        public const string Name = "ShowdownModePauseOnDeperadoDiff";
+        public const string Version = "1.0";
 
-        public static void Load(ModEntry modEntry)
+        public static BepInEx.Logging.ManualLogSource StaticLogger;
+
+        public void Awake()
         {
-            Logger = modEntry.Logger;
-
-            var harmony = new Harmony(modEntry.Info.Id);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            StaticLogger = Logger;
+            Harmony.CreateAndPatchAll(typeof(Hooks));
         }
     }
 
     [HarmonyPatch(typeof(UIConfirmDialogDifficulty), "onDifficultyChanged")]
-    class Patch
+    class Hooks
     {
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -43,7 +45,7 @@ namespace Desperados3Mods.ShowdownModePauseOnDesperadoDiff
                 yield return instruction;
             }
 
-            if (index < 4) Main.Logger.Log("ERROR: Failed to find code to patch. This might be caused by an update of the game.");
+            if (index < 4) Main.StaticLogger?.LogError("ERROR: Failed to find code to patch. This might be caused by an update of the game.");
         }
     }
 }
