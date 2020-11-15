@@ -1,0 +1,1 @@
+xcopy /y "%1" "G:\Steam\steamapps\common\Desperados III\BepInEx\Plugins\%2.dll*"

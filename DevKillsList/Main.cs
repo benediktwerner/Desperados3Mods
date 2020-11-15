@@ -3,7 +3,7 @@ using static UnityModManagerNet.UnityModManager;
 using System;
 using System.Collections.Generic;
 
-namespace DevKillsList
+namespace Desperados3Mods.DevKillsList
 {
     public class Main
     {
@@ -141,4 +141,3 @@ namespace DevKillsList
         };
     }
 }
-

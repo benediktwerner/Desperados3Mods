@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-namespace ShowdownModePauseOnDesperadoDiff
+namespace Desperados3Mods.ShowdownModePauseOnDesperadoDiff
 {
     public class Main
     {

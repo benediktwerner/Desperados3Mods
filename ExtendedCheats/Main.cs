@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
 
-namespace ExtendedCheats
+namespace Desperados3Mods.ExtendedCheats
 {
     public class Main
     {

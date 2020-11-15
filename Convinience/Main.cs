@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityModManagerNet;
 
-namespace Convinience
+namespace Desperados3Mods.Convinience
 {
     public class Main
     {

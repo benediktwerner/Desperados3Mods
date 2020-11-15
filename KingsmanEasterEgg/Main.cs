@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityModManagerNet;
 
-namespace KingsmanEasterEgg
+namespace Desperados3Mods.KingsmanEasterEgg
 {
     public class Main
     {

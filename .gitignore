@@ -1,7 +1,4 @@
-**/bin
-**/obj
-**/.vs
-**/Properties
-**/*.sln
-**/*.csproj
-releases
+bin
+obj
+.vs
+PostBuild.bat

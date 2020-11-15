@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityModManagerNet;
 
-namespace D1CooperGun
+namespace Desperados3Mods.D1CooperGun
 {
     public class Main
     {
