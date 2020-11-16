@@ -10,7 +10,7 @@ namespace Desperados3Mods.Convinience
     {
         public const string GUID = "de.benediktwerner.desperados3.convinience";
         public const string Name = "Convinience";
-        public const string Version = "1.0";
+        public const string Version = "1.0.1";
 
         static ConfigEntry<bool> configStartHighlights;
         static ConfigEntry<bool> configStartZoom;
@@ -35,7 +35,7 @@ namespace Desperados3Mods.Convinience
                     AudioListener.volume = (float)originalVolume;
                 originalVolume = null;
             }
-            else if (configMuteMusicInBackground.Value)
+            else if (configMuteMusicInBackground.Value && originalVolume == null)
             {
                 originalVolume = AudioListener.volume;
                 AudioListener.volume = 0;
