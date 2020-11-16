@@ -18,21 +18,22 @@ namespace Desperados3Mods.ExtendedCheats
         public const string Version = "1.0";
 
         public static ConfigEntry<bool> configEnabled;
-
         public static ConfigEntry<bool> configInfiniteAmmo;
-
-        public static AbilityModifiers configAbilityModifiers;
-
-        public static ConfigEntry<ToggleableFloat> configCorpseThrowRange;
-        public static ConfigEntry<ToggleableFloat> configCorpseKnockoutRange;
-        public static ConfigEntry<bool> configMultiKnockOut;
 
         public static ConfigEntry<bool> configEnableCheats;
         public static ConfigEntry<bool> configEnableDev;
         public static ConfigEntry<bool> configEnableDevExtra;
 
+        public static ConfigEntry<ToggleableFloat> configCorpseThrowRange;
+        public static ConfigEntry<ToggleableFloat> configCorpseKnockoutRange;
+        public static ConfigEntry<bool> configMultiKnockOut;
+
+        public static AbilityModifiers configAbilityModifiers;
+
         public static Harmony harmony;
         public static bool isMultiKnockoutPatched = false;
+
+        public static GUIStyle headingStyle;
 
         public void Awake()
         {
@@ -59,15 +60,17 @@ namespace Desperados3Mods.ExtendedCheats
 
             configInfiniteAmmo = Config.Bind("General", "Infinite Ammo", false, new ConfigDescription("Infinite Ammo", null, new ConfigurationManagerAttributes { Category = "", Order = 99 }));
 
-            configAbilityModifiers = new AbilityModifiers(Config);
-
-            configCorpseThrowRange = Config.BindToggleableFloat("2. Corpse Throwing", "Throw Range", new ToggleableFloat(false, 5));
-            configCorpseKnockoutRange = Config.BindToggleableFloat("2. Corpse Throwing", "Knockout Range", new ToggleableFloat(false, 2));
-            configMultiKnockOut = Config.Bind("2. Corpse Throwing", "Allow throws to knockout multiple enemies", false);
-
             configEnableCheats = Config.Bind("1. Cheats and Dev options", "Enable Cheats", false);
             configEnableDev = Config.Bind("1. Cheats and Dev options", "Enable Dev Options", false);
             configEnableDevExtra = Config.Bind("1. Cheats and Dev options", "Enable Extra Dev Options", false);
+
+            configCorpseThrowRange = Config.BindToggleableFloat("3. Corpse Throwing", "Throw Range", new ToggleableFloat(false, 5));
+            configCorpseKnockoutRange = Config.BindToggleableFloat("3. Corpse Throwing", "Knockout Range", new ToggleableFloat(false, 2));
+            configMultiKnockOut = Config.Bind("3. Corpse Throwing", "Allow throws to knockout multiple enemies", false);
+
+            configAbilityModifiers = new AbilityModifiers(Config);
+
+            Commands.Bind(Config);
 
             harmony = Harmony.CreateAndPatchAll(typeof(Hooks));
 
@@ -76,9 +79,18 @@ namespace Desperados3Mods.ExtendedCheats
             Config.SettingChanged += (_, __) => OnSettingsChanged();
         }
 
+        void OnGUI()
+        {
+            if (headingStyle != null) return;
+
+            headingStyle = new GUIStyle(GUI.skin.label);
+            headingStyle.name = "D3.ExtendedCheats Heading";
+            headingStyle.fontStyle = FontStyle.Bold;
+        }
+
         static void OnSettingsChanged()
         {
-            //PatchMultiKnockout();
+            PatchMultiKnockout();
             MiSingletonScriptableObject<GlobalSettings>.instance.bEnableCheats = configEnabled.Value && configEnableCheats.Value;
             MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptions = configEnabled.Value && configEnableDev.Value;
             MiSingletonScriptableObject<GlobalSettings>.instance.bDevOptionsExtra = configEnabled.Value && configEnableDevExtra.Value;
@@ -227,12 +239,12 @@ namespace Desperados3Mods.ExtendedCheats
             var self = (ToggleableFloat)entry.BoxedValue;
             if (self.enabled = GUILayout.Toggle(self.enabled, self.enabled ? "Overwrite" : "Disabled"))
             {
-                var str = GUILayout.TextField(self.value.ToString("f2"));
+                var str = GUILayout.TextField(self.value.ToString("f2", CultureInfo.InvariantCulture));
                 if (string.IsNullOrEmpty(str))
                     self.value = 0;
                 else
                 {
-                    if (float.TryParse(str, System.Globalization.NumberStyles.Float, System.Globalization.NumberFormatInfo.CurrentInfo, out var num))
+                    if (float.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out var num))
                     {
                         self.value = num;
                     }
@@ -298,25 +310,25 @@ namespace Desperados3Mods.ExtendedCheats
 
         public AbilityModifiers(ConfigFile config)
         {
-            cpyThrowKnifeRange = config.BindToggleableFloat("3. Skills", "Cooper Young Throw Knife Range", new ToggleableFloat(false, 8));
+            cpyThrowKnifeRange = config.BindToggleableFloat("4. Skills", "Cooper Young Throw Knife Range", new ToggleableFloat(false, 8));
 
-            copThrowKnifeRange = config.BindToggleableFloat("3. Skills", "Cooper Knife Throw Range", new ToggleableFloat(false, 12));
-            copWhistleStoneRange = config.BindToggleableFloat("3. Skills", "Cooper Coin Range", new ToggleableFloat(false, 12));
-            copGunLeftRange = config.BindToggleableFloat("3. Skills", "Cooper Left Gun Range", new ToggleableFloat(false, 17));
-            copGunRightRange = config.BindToggleableFloat("3. Skills", "Cooper Right Gun Range", new ToggleableFloat(false, 17));
+            copThrowKnifeRange = config.BindToggleableFloat("4. Skills", "Cooper Knife Throw Range", new ToggleableFloat(false, 12));
+            copWhistleStoneRange = config.BindToggleableFloat("4. Skills", "Cooper Coin Range", new ToggleableFloat(false, 12));
+            copGunLeftRange = config.BindToggleableFloat("4. Skills", "Cooper Left Gun Range", new ToggleableFloat(false, 17));
+            copGunRightRange = config.BindToggleableFloat("4. Skills", "Cooper Right Gun Range", new ToggleableFloat(false, 17));
 
-            mccGunRange = config.BindToggleableFloat("3. Skills", "McCoy Gun Range", new ToggleableFloat(false, 55));
-            mccStunboxRange = config.BindToggleableFloat("3. Skills", "McCoy Bag Range", new ToggleableFloat(false, 5));
-            mccStunGrenadeRange = config.BindToggleableFloat("3. Skills", "McCoy Gas Range", new ToggleableFloat(false, 8));
+            mccGunRange = config.BindToggleableFloat("4. Skills", "McCoy Gun Range", new ToggleableFloat(false, 55));
+            mccStunboxRange = config.BindToggleableFloat("4. Skills", "McCoy Bag Range", new ToggleableFloat(false, 5));
+            mccStunGrenadeRange = config.BindToggleableFloat("4. Skills", "McCoy Gas Range", new ToggleableFloat(false, 8));
 
-            traGunRange = config.BindToggleableFloat("3. Skills", "Hector Gun Range", new ToggleableFloat(false, 12));
+            traGunRange = config.BindToggleableFloat("4. Skills", "Hector Gun Range", new ToggleableFloat(false, 12));
 
-            katGunRange = config.BindToggleableFloat("3. Skills", "Kate Gun Range", new ToggleableFloat(false, 9));
-            katBlindRange = config.BindToggleableFloat("3. Skills", "Kate Perfume Range", new ToggleableFloat(false, 12));
+            katGunRange = config.BindToggleableFloat("4. Skills", "Kate Gun Range", new ToggleableFloat(false, 9));
+            katBlindRange = config.BindToggleableFloat("4. Skills", "Kate Perfume Range", new ToggleableFloat(false, 12));
 
-            vooControlRange = config.BindToggleableFloat("3. Skills", "Isabelle Mind Control Range", new ToggleableFloat(false, 10));
-            vooConnectRange = config.BindToggleableFloat("3. Skills", "Isabelle Connect Range", new ToggleableFloat(false, 10));
-            vooPetRange = config.BindToggleableFloat("3. Skills", "Isabelle Cat Range", new ToggleableFloat(false, 14));
+            vooControlRange = config.BindToggleableFloat("4. Skills", "Isabelle Mind Control Range", new ToggleableFloat(false, 10));
+            vooConnectRange = config.BindToggleableFloat("4. Skills", "Isabelle Connect Range", new ToggleableFloat(false, 10));
+            vooPetRange = config.BindToggleableFloat("4. Skills", "Isabelle Cat Range", new ToggleableFloat(false, 14));
         }
     }
 }
