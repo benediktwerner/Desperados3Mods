@@ -7,16 +7,17 @@ using System.Collections.Generic;
 namespace Desperados3Mods.DevKillsList
 {
     [BepInPlugin(GUID, Name, Version)]
+    [BepInDependency("com.bepis.bepinex.configurationmanager")]
     public class Main : BaseUnityPlugin
     {
         public const string GUID = "de.benediktwerner.desperados3.devkilllist";
         public const string Name = "DevKillList";
-        public const string Version = "1.0";
+        public const string Version = "1.0.1";
 
         void Awake()
         {
-            Config.Bind("General", "Devs List", false,
-                new ConfigDescription("Dev List", null,
+            Config.Bind("", "__ListDrawer", false,
+                new ConfigDescription("Don't edit this! This has no effect. It's just used to draw the list in the ConfigurationManager window.", null,
                     new ConfigurationManagerAttributes
                     {
                         CustomDrawer = DrawList,
