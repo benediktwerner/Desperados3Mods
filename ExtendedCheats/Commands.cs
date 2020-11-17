@@ -1,7 +1,9 @@
-﻿using BepInEx.Configuration;
-using System;
-using UnityEngine;
+﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
+using System;
+using System.IO;
+using UnityEngine;
 
 namespace Desperados3Mods.ExtendedCheats
 {
@@ -26,10 +28,12 @@ namespace Desperados3Mods.ExtendedCheats
 
         static void DrawCommands(ConfigEntryBase entry)
         {
-            var gameInput = MiSingletonSaveMortal<MiGameInput>.instance;
+            var gameInput = MiGameInput.instance;
             if (gameInput == null)
             {
+                GUILayout.BeginVertical("box");
                 GUILayout.Label("Enter a level to show available commands");
+                GUILayout.EndVertical();
                 return;
             }
 
@@ -42,12 +46,14 @@ namespace Desperados3Mods.ExtendedCheats
                 return;
             }
 
+            GUILayout.BeginVertical("box");
+
             for (int i = 0; i < gameInput.iPlayerCharacterCount; i++)
             {
                 MiCharacter character = gameInput.lPlayerCharacter[i];
                 var uiData = character.uiData;
 
-                GUILayout.Label(uiData.lstrName.strText, Main.headingStyle);
+                GUILayout.Label(uiData.lstrName.strText, Main.HeadingStyle);
                 DrawAdjustableInt("Health", character.m_charHealth.iHealth.ToString(),
                     () => character.m_charHealth.iHealth--,
                     () => character.m_charHealth.iHealth++
@@ -65,12 +71,28 @@ namespace Desperados3Mods.ExtendedCheats
                     var ammoType = GetAmmoType(playerSkill);
                     if (ammoType == 0) continue;
 
-                    DrawAdjustableInt(skill.m_skillData.name, $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
+                    var charSkill = new CharacterSkill(skill.m_skillData.name);
+
+                    DrawAdjustableInt(charSkill.name + " Ammo", $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
                         () => character.m_charInventory.Remove(ammoType),
                         () => character.m_charInventory.Insert(ammoType)
                     );
                 }
             }
+
+#if DEBUG
+            if (GUILayout.Button("Dump Skill Data"))
+            {
+                var content = "";
+                foreach (var data in Resources.FindObjectsOfTypeAll<PlayerSkillData>())
+                {
+                    content += data.name + "\n";
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "skills.toml"), content);
+            }
+#endif
+
+            GUILayout.EndVertical();
             GUILayout.EndVertical();
         }
 
