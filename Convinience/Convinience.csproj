@@ -7,7 +7,7 @@
     <ProjectGuid>{1743643E-93CD-4AB5-AE29-F759BF39D7E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Convinience</RootNamespace>
+    <RootNamespace>Desperados3Mods.Convinience</RootNamespace>
     <AssemblyName>Convinience</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

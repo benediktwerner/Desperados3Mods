@@ -7,7 +7,7 @@
     <ProjectGuid>{37A1CE85-BCF4-4D76-A66B-D0D5A5250BB4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DevKillsList</RootNamespace>
+    <RootNamespace>Desperados3Mods.DevKillsList</RootNamespace>
     <AssemblyName>DevKillsList</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

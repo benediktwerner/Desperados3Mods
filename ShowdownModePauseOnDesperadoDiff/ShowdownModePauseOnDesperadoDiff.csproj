@@ -9,7 +9,7 @@
     <ProjectGuid>{4EDE20D0-410A-46C6-BC0E-FBF07A94C140}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ShowdownModePauseOnDesperadoDiff</RootNamespace>
+    <RootNamespace>Desperados3Mods.ShowdownModePauseOnDesperadoDiff</RootNamespace>
     <AssemblyName>ShowdownModePauseOnDesperadoDiff</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

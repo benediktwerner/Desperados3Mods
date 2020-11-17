@@ -7,7 +7,7 @@
     <ProjectGuid>{3EB05C62-18B5-4B5A-83C8-92AB8F2E089E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KingsmanEasterEgg</RootNamespace>
+    <RootNamespace>Desperados3Mods.KingsmanEasterEgg</RootNamespace>
     <AssemblyName>KingsmanEasterEgg</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

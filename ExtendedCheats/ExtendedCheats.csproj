@@ -7,7 +7,7 @@
     <ProjectGuid>{C8CD0994-9EA1-458F-A0ED-16FC322777A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExtendedCheats</RootNamespace>
+    <RootNamespace>Desperados3Mods.ExtendedCheats</RootNamespace>
     <AssemblyName>ExtendedCheats</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

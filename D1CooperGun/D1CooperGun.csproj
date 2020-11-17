@@ -7,7 +7,7 @@
     <ProjectGuid>{EF650725-1AD8-46CB-8433-27DE5D38224A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>D1CooperGun</RootNamespace>
+    <RootNamespace>Desperados3Mods.D1CooperGun</RootNamespace>
     <AssemblyName>D1CooperGun</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
