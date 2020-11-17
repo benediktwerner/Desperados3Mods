@@ -53,7 +53,7 @@ namespace Desperados3Mods.ExtendedCheats
                 MiCharacter character = gameInput.lPlayerCharacter[i];
                 var uiData = character.uiData;
 
-                GUILayout.Label(uiData.lstrName.strText, Main.HeadingStyle);
+                GUILayout.Label(uiData.lstrName.strText, Main.SkinBold);
                 DrawAdjustableInt("Health", character.m_charHealth.iHealth.ToString(),
                     () => character.m_charHealth.iHealth--,
                     () => character.m_charHealth.iHealth++
@@ -71,9 +71,9 @@ namespace Desperados3Mods.ExtendedCheats
                     var ammoType = GetAmmoType(playerSkill);
                     if (ammoType == 0) continue;
 
-                    var charSkill = new CharacterSkill(skill.m_skillData.name);
+                    var charSkill = new CharacterSkillName(skill.m_skillData.name);
 
-                    DrawAdjustableInt(charSkill.name + " Ammo", $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
+                    DrawAdjustableInt(charSkill.skill + " Ammo", $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
                         () => character.m_charInventory.Remove(ammoType),
                         () => character.m_charInventory.Insert(ammoType)
                     );

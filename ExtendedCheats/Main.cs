@@ -33,18 +33,33 @@ namespace Desperados3Mods.ExtendedCheats
         public static Harmony harmony;
         public static bool isMultiKnockoutPatched = false;
 
-        static GUIStyle _headingStyle;
-        public static GUIStyle HeadingStyle {
+        static GUIStyle _skinBold;
+        public static GUIStyle SkinBold {
             get {
-                if (_headingStyle == null)
+                if (_skinBold == null)
                 {
-                    _headingStyle = new GUIStyle(GUI.skin.label)
+                    _skinBold = new GUIStyle(GUI.skin.label)
                     {
-                        name = "D3.ExtendedCheats Heading",
+                        name = "D3.ExtendedCheats Bold",
                         fontStyle = FontStyle.Bold
                     };
                 }
-                return _headingStyle;
+                return _skinBold;
+            }
+        }
+
+        static GUIStyle _skinFloatField;
+        public static GUIStyle SkinFloatField {
+            get {
+                if (_skinFloatField == null)
+                {
+                    _skinFloatField = new GUIStyle(GUI.skin.textField)
+                    {
+                        name = "D3.ExtendedCheats Float TextField",
+                        alignment = TextAnchor.MiddleRight
+                    };
+                }
+                return _skinFloatField;
             }
         }
 
@@ -193,7 +208,6 @@ namespace Desperados3Mods.ExtendedCheats
         [HarmonyPatch(typeof(UIManager), "onGameplayHUDStart")]
         internal static void UIManager_onAfterLoad()
         {
-            Main.StaticLogger.LogDebug("onAfterLoad");
             if (Main.configEnabled.Value) Main.skills.OnLevelLoad();
         }
     }
