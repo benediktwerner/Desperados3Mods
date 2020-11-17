@@ -2,15 +2,14 @@ using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using MiCoreServices;
-using UnityEngine;
 
-namespace Desperados3Mods.Convinience
+namespace Desperados3Mods.Convenience
 {
     [BepInPlugin(GUID, Name, Version)]
     public class Main : BaseUnityPlugin
     {
-        public const string GUID = "de.benediktwerner.desperados3.convinience";
-        public const string Name = "Convinience";
+        public const string GUID = "de.benediktwerner.desperados3.convenience";
+        public const string Name = "Convenience";
         public const string Version = "1.0.1";
 
         static ConfigEntry<bool> configStartHighlights;

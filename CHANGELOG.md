@@ -1,4 +1,4 @@
-# Convinience
+# Convenience
 - 1.0    Initial release
 - 1.0.1  Fix audio turning off permanently in some situations
 
