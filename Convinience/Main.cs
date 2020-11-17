@@ -1,6 +1,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using MiCoreServices;
 using UnityEngine;
 
 namespace Desperados3Mods.Convinience
@@ -27,19 +28,44 @@ namespace Desperados3Mods.Convinience
             Harmony.CreateAndPatchAll(typeof(Hooks));
         }
 
-        internal void OnApplicationFocus(bool hasFocus)
+        void Start() => GlobalManager.executeOnInit(OnGlobalManagerInit, 0);
+
+        private void OnGlobalManagerInit()
         {
+            GlobalManager.instance.processLifetimeService.Suspending += OnApplicationSuspended;
+            GlobalManager.instance.processLifetimeService.Resuming += OnApplicationResumed;
+            GlobalManager.instance.processLifetimeService.Constrained += OnApplicationConstrained;
+            GlobalManager.instance.processLifetimeService.Unconstrained += OnApplicationUnconstrained;
+        }
+
+        private void OnApplicationSuspended() => OnApplicationFocus(false);
+        private void OnApplicationResumed() => OnApplicationFocus(false);
+        private void OnApplicationConstrained() => OnApplicationFocus(false);
+        private void OnApplicationUnconstrained() => OnApplicationFocus(false);
+
+        void OnApplicationFocus(bool hasFocus)
+        {
+            bool changed = false;
+
             if (hasFocus)
             {
                 if (originalVolume != null)
-                    AudioListener.volume = (float)originalVolume;
+                {
+                    MiAudioMixer.s_fVolumeMaster = (float)originalVolume;
+                    changed = true;
+                }
                 originalVolume = null;
             }
-            else if (configMuteMusicInBackground.Value && originalVolume == null)
+            else if (configMuteMusicInBackground.Value && originalVolume == null && MiAudioMixer.s_fVolumeMaster > 0)
             {
-                originalVolume = AudioListener.volume;
-                AudioListener.volume = 0;
+                originalVolume = MiAudioMixer.s_fVolumeMaster;
+                MiAudioMixer.s_fVolumeMaster = 0;
+                changed = true;
             }
+
+            if (!changed) return;
+
+            MiSingletonMonoResource<MiAudioMixer>.instance.applySettings();
         }
 
         static class Hooks
