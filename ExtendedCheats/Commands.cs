@@ -1,13 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using HarmonyLib;
 using System;
 using System.IO;
 using UnityEngine;
 
 namespace Desperados3Mods.ExtendedCheats
 {
-    public static class Commands
+    static class Commands
     {
         static bool show = false;
 
@@ -58,10 +57,6 @@ namespace Desperados3Mods.ExtendedCheats
                     () => character.m_charHealth.iHealth--,
                     () => character.m_charHealth.iHealth++
                 );
-                DrawAdjustableInt("Max Health", character.m_charHealth.iHealthMax.ToString(),
-                    () => character.ChangeMaxHealth(-1),
-                    () => character.ChangeMaxHealth(+1)
-                );
 
                 foreach (var skill in character.controller.lSkills)
                 {
@@ -70,7 +65,7 @@ namespace Desperados3Mods.ExtendedCheats
 
                     var ammoType = GetAmmoType(playerSkill);
                     if (ammoType == 0) continue;
-
+                    
                     var charSkill = new CharacterSkillName(skill.m_skillData.name);
 
                     DrawAdjustableInt(charSkill.skill + " Ammo", $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
@@ -96,7 +91,7 @@ namespace Desperados3Mods.ExtendedCheats
             GUILayout.EndVertical();
         }
 
-        static MiCharacterInventory.ItemType GetAmmoType(PlayerSkill skill)
+        public static MiCharacterInventory.ItemType GetAmmoType(PlayerSkill skill)
         {
             switch (skill)
             {
@@ -124,34 +119,6 @@ namespace Desperados3Mods.ExtendedCheats
             if (GUILayout.Button("+", GUILayout.Width(50))) decrease();
 
             GUILayout.EndHorizontal();
-        }
-
-        static void ChangeMaxHealth(this MiCharacter character, int change)
-        {
-            character.m_charHealth.m_iHealthMaxOverride = character.m_charHealth.iHealthMax + change;
-
-            var uiData = character.uiData;
-            uiData.m_iHealthMax.value = character.m_charHealth.m_iHealthMaxOverride;
-
-            var slotHandlerMouse = UnityEngine.Object.FindObjectOfType<UICharacterSlotHandlerMouse>();
-            if (slotHandlerMouse != null)
-            {
-                var mouseSlot = slotHandlerMouse.arUICharacterSlots[uiData.m_iSlotIndexMouse.value] as UICharacterSlotMouse;
-                if (mouseSlot != null)
-                {
-                    typeof(UICharacterSlotMouse).GetMethod("updateHealthBar", AccessTools.all).Invoke(mouseSlot, new object[] { true });
-                }
-            }
-
-            var slotHandlerController = UnityEngine.Object.FindObjectOfType<UICharacterSlotHandlerController>();
-            if (slotHandlerController != null)
-            {
-                var controllerSlot = slotHandlerController.arUICharacterSlots[uiData.m_iSlotIndexController.value] as UICharacterSlotWheel;
-                if (controllerSlot != null)
-                {
-                    typeof(UICharacterSlotMouse).GetMethod("updateHealthBar", AccessTools.all).Invoke(controllerSlot, new object[] { true });
-                }
-            }
         }
     }
 }

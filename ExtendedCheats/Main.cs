@@ -16,7 +16,7 @@ namespace Desperados3Mods.ExtendedCheats
     {
         public const string GUID = "de.benediktwerner.desperados3.extendedcheats";
         public const string Name = "ExtendedCheats";
-        public const string Version = "1.0";
+        public const string Version = "1.1";
 
         public static ConfigEntry<bool> configEnabled;
         public static ConfigEntry<bool> configInfiniteAmmo;
@@ -28,7 +28,7 @@ namespace Desperados3Mods.ExtendedCheats
         public static ConfigEntry<ToggleableFloat> configCorpseKnockoutRange;
         public static ConfigEntry<bool> configMultiKnockOut;
 
-        internal static SkillOverrides skills;
+        internal static Overrides overrides;
 
         public static Harmony harmony;
         public static bool isMultiKnockoutPatched = false;
@@ -67,6 +67,8 @@ namespace Desperados3Mods.ExtendedCheats
 
         void Awake()
         {
+            StaticLogger = Logger;
+
             TomlTypeConverter.AddConverter(typeof(ToggleableFloat), new TypeConverter
             {
                 ConvertToObject = (str, type) =>
@@ -99,15 +101,13 @@ namespace Desperados3Mods.ExtendedCheats
 
             Commands.Bind(Config);
 
-            skills = new SkillOverrides(Config);
+            overrides = new Overrides(Config);
 
             harmony = Harmony.CreateAndPatchAll(typeof(Hooks));
 
             OnSettingsChanged();
 
             Config.SettingChanged += (_, __) => OnSettingsChanged();
-
-            StaticLogger = Logger;
         }
 
         static void OnSettingsChanged()
@@ -205,10 +205,10 @@ namespace Desperados3Mods.ExtendedCheats
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(UIManager), "onGameplayHUDStart")]
-        internal static void UIManager_onAfterLoad()
+        [HarmonyPatch(typeof(UIManager), "onGameplayHUDUIInitEndOfFrame")]
+        internal static void UIManager_onGameplayHUDUIInitEndOfFrame()
         {
-            if (Main.configEnabled.Value) Main.skills.OnLevelLoad();
+            if (Main.configEnabled.Value) Main.overrides.OnLevelLoad();
         }
     }
 
@@ -250,27 +250,6 @@ namespace Desperados3Mods.ExtendedCheats
                 }
             }
             entry.BoxedValue = self;
-        }
-    }
-
-    static class Extensions
-    {
-        internal static ConfigEntry<ToggleableFloat> BindToggleableFloat(this ConfigFile config, string category, string description, ToggleableFloat initial)
-        {
-            return config.Bind(category, description, initial,
-                new ConfigDescription(description, null,
-                    new ConfigurationManagerAttributes
-                    {
-                        CustomDrawer = ToggleableFloat.Draw,
-                        DefaultValue = initial,
-                    }
-                )
-            );
-        }
-
-        internal static bool SetIfEnabled(this ConfigEntry<ToggleableFloat> entry, ref float value)
-        {
-            return entry.Value.SetIfEnabled(ref value);
         }
     }
 }

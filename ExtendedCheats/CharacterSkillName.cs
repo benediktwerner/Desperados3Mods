@@ -2,7 +2,7 @@
 
 namespace Desperados3Mods.ExtendedCheats
 {
-    internal struct CharacterSkillName
+    struct CharacterSkillName
     {
         public string character;
         public string skill;

@@ -1,51 +1,34 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using HarmonyLib;
 using SimpleJSON;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using UnityEngine;
 
 namespace Desperados3Mods.ExtendedCheats
 {
-    class SkillOverrides
+    class Overrides
     {
-        const string CONFIG_FILENAME = "skills.json";
+        const string CONFIG_FILENAME = "overrides.json";
         static string ConfigPath => Path.Combine(Paths.ConfigPath, CONFIG_FILENAME);
 
-        readonly CooperOverrides cooperOverrides = new CooperOverrides();
-        readonly CooperYoungOverrides cooperYoungOverrides = new CooperYoungOverrides();
-        readonly McCoyOverrides mcCoyOverrides = new McCoyOverrides();
-        readonly HectorOverrides hectorOverrides = new HectorOverrides();
-        readonly KateOverrides kateOverrides = new KateOverrides();
-        readonly IsabelleOverrides isabelleOverrides = new IsabelleOverrides();
-
-        CharacterSkillOverrides[] Overrides => new CharacterSkillOverrides[]{
-            cooperOverrides,
-            cooperYoungOverrides,
-            mcCoyOverrides,
-            hectorOverrides,
-            kateOverrides,
-            isabelleOverrides
-        };
+        readonly CharacterOverride[] CharacterOverrides = CharacterOverride.GetAll();
 
         bool show = false;
         string charToShow = null;
-        bool generateSkillsFile = false;
 
         readonly ConfigEntry<bool> configEnabled;
 
-        internal SkillOverrides(ConfigFile config)
+        internal Overrides(ConfigFile config)
         {
-            configEnabled = config.Bind("General", "Enable Skill Overrides", false,
+            configEnabled = config.Bind("General", "Enable Overrides", false,
                 new ConfigDescription(
-                    "Enable overriding skill. Use the in-game settings menu provided by BepInEx.ConfigurationManager or edit skills.json to modify values (enter a level to generate).",
+                    "Enable overriding skills and character attributes. Use the in-game settings menu provided by BepInEx.ConfigurationManager or edit overrides.json to modify values (enter a level to generate).",
                     null,
                     new ConfigurationManagerAttributes
                     {
-                        Category = "4. Skill Overrides",
+                        Category = "4. Overrides",
                         CustomDrawer = DrawSkills,
                         HideDefaultButton = true,
                         HideSettingName = true
@@ -73,24 +56,24 @@ namespace Desperados3Mods.ExtendedCheats
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Reset all overrides", GUILayout.Width(200)))
             {
-                Overrides.ForEach(o => o.Reset());
+                CharacterOverrides.ForEach(o => o.Reset());
             }
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reload skills.json"))
+            if (GUILayout.Button("Reload overrides.json"))
             {
                 Load();
                 Apply();
             }
-            if (GUILayout.Button("Apply changes and Save to skills.json"))
+            if (GUILayout.Button("Apply changes and Save to overrides.json"))
             {
                 Apply();
                 Store();
             }
             GUILayout.EndHorizontal();
 
-            Overrides.ForEach(o => o.Draw(ref charToShow));
+            CharacterOverrides.ForEach(o => o.Draw(ref charToShow));
 
             GUILayout.EndVertical();
             GUILayout.EndVertical();
@@ -106,17 +89,23 @@ namespace Desperados3Mods.ExtendedCheats
 
             try
             {
-                var config = JSON.Parse(File.ReadAllText(ConfigPath)).AsObject;
-
-                foreach (var character in Overrides)
+                var config = JSON.Parse(File.ReadAllText(ConfigPath))?.AsObject;
+                if (config == null)
                 {
-                    character.FromJson(config[character.Name]?.AsObject);
+                    Store();
+                    return;
+                }
+
+                foreach (var character in CharacterOverrides)
+                {
+                    character.FromJson(config[character.name]?.AsObject);
                 }
             }
             catch (Exception e)
             {
-                Main.StaticLogger.LogError("Error when loading skills.json:");
+                Main.StaticLogger.LogError("Error when loading overrides.json:");
                 Main.StaticLogger.LogError(e);
+                Store();
             }
         }
 
@@ -126,12 +115,12 @@ namespace Desperados3Mods.ExtendedCheats
             content += "{\n";
             var firstChar = true;
 
-            foreach (var character in Overrides)
+            foreach (var character in CharacterOverrides)
             {
                 if (firstChar) firstChar = false;
                 else content += ",\n";
 
-                content += "  \"" + character.Name + "\": " + character.ToJson("  ");
+                content += "  \"" + character.name + "\": " + character.ToJson("  ");
             }
             content += "\n}";
 
@@ -140,14 +129,24 @@ namespace Desperados3Mods.ExtendedCheats
 
         internal void OnLevelLoad()
         {
-            Apply();
+            if (configEnabled.Value && SceneStatistics.instance.iLoadCount == 0) Apply(start: true);
         }
 
-        void Apply()
+        void Apply(bool start = false)
         {
-            var objs = new Dictionary<string, PlayerSkillData>();
-            foreach (var obj in Resources.FindObjectsOfTypeAll<PlayerSkillData>()) objs[obj.name] = obj;
-            Overrides.ForEach(o => o.Apply(objs));
+            var gameInput = MiGameInput.instance;
+            if (gameInput == null) return;
+
+            foreach (var character in gameInput.lPlayerCharacter)
+            {
+                foreach (var characterOverride in CharacterOverrides)
+                {
+                    if (character.name.Contains(characterOverride.internalName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        characterOverride.Apply(character, start);
+                    }
+                }
+            }
         }
     }
 }

@@ -70,11 +70,12 @@
     <Compile Include="CharacterSkillName.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="ConfigurationManagerAttribute.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SkillOverride.cs" />
-    <Compile Include="SkillOverrides.cs" />
-    <Compile Include="CharacterSkillOverrides.cs" />
+    <Compile Include="Overrides.cs" />
+    <Compile Include="CharacterOverride.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
