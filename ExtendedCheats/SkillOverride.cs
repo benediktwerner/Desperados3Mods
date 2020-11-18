@@ -46,7 +46,7 @@ namespace Desperados3Mods.ExtendedCheats
             range = rangeDefault;
             cooldown = cooldownDefault;
             maxAmmo = maxAmmoDefault;
-            startingAmmo = startingAmmoDefault;
+            startingAmmo = startingAmmoDefault.Clone() as int[];
         }
 
         public void Apply(PlayerSkill skill, bool start)

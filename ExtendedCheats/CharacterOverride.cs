@@ -44,6 +44,7 @@ namespace Desperados3Mods.ExtendedCheats
         public void Reset()
         {
             foreach (var o in skillOverrides) o.Reset();
+            maxHealth = maxHealthDefault.Clone() as int[];
         }
 
         public void Apply(MiCharacter character, bool start)

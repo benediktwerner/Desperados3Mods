@@ -11,3 +11,4 @@
 - 1.1    Add commands
          Revamp overrides
          Actually enable multi-knockout corpse throws
+- 1.1.1  Fix startingAmmo and maxHealth reset
