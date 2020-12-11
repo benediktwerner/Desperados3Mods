@@ -12,3 +12,5 @@
          Revamp overrides
          Actually enable multi-knockout corpse throws
 - 1.1.1  Fix startingAmmo and maxHealth reset
+- curr   Add scene statistics reset command
+         Add in-game showdown mode pause toggle
