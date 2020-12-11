@@ -49,45 +49,6 @@ namespace Desperados3Mods.ExtendedCheats
 
             GUILayout.BeginVertical("box");
 
-            for (int i = 0; i < gameInput.iPlayerCharacterCount; i++)
-            {
-                MiCharacter character = gameInput.lPlayerCharacter[i];
-                var uiData = character.uiData;
-
-                GUILayout.Label(uiData.lstrName.strText, Main.SkinBold);
-                DrawAdjustableInt("Health", character.m_charHealth.iHealth.ToString(),
-                    () => character.m_charHealth.iHealth--,
-                    () => character.m_charHealth.iHealth++
-                );
-
-                foreach (var skill in character.controller.lSkills)
-                {
-                    var playerSkill = skill as PlayerSkill;
-                    if (playerSkill == null) continue;
-
-                    var ammoType = GetAmmoType(playerSkill);
-                    if (ammoType == 0) continue;
-
-                    var charSkill = new CharacterSkillName(skill.m_skillData.name);
-
-                    DrawAdjustableInt(charSkill.skill + " Ammo", $"{playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}",
-                        () => character.m_charInventory.Remove(ammoType),
-                        () => character.m_charInventory.Insert(ammoType)
-                    );
-                }
-            }
-
-#if DEBUG
-            if (GUILayout.Button("Dump Skill Data"))
-            {
-                var content = "";
-                foreach (var data in Resources.FindObjectsOfTypeAll<PlayerSkillData>())
-                {
-                    content += data.name + "\n";
-                }
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "skills.toml"), content);
-            }
-#endif
             var difficultySettings = (MissionSetupSettings.DifficultySettings)fieldMissionSetupSettings_s_difficultySettings.GetValue(null);
             var showdownPauseOld = difficultySettings.m_bFocusModePause;
             difficultySettings.m_bFocusModePause = GUILayout.Toggle(difficultySettings.m_bFocusModePause, "Pausing Showdownmode");
@@ -136,6 +97,38 @@ namespace Desperados3Mods.ExtendedCheats
                 statsNoSaveData.lPlayerStateDurations.Clear();
             }
 
+#if DEBUG
+            if (GUILayout.Button("Dump Skill Data"))
+            {
+                var content = "";
+                foreach (var data in Resources.FindObjectsOfTypeAll<PlayerSkillData>())
+                {
+                    content += data.name + "\n";
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "skills.toml"), content);
+            }
+#endif
+
+            for (int i = 0; i < gameInput.iPlayerCharacterCount; i++)
+            {
+                MiCharacter character = gameInput.lPlayerCharacter[i];
+                var uiData = character.uiData;
+
+                if (string.IsNullOrWhiteSpace(uiData.lstrName.strText)) continue;
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(uiData.lstrName.strText, Main.SkinBold, GUILayout.Width(300));
+                GUILayout.Label($"Health: {character.m_charHealth.iHealth}", GUILayout.Width(80));
+                if (GUILayout.Button("-", GUILayout.Width(50))) character.m_charHealth.iHealth--;
+                if (GUILayout.Button("+", GUILayout.Width(50))) character.m_charHealth.iHealth++;
+                GUILayout.EndHorizontal();
+
+                foreach (var skill in character.controller.lSkills)
+                {
+                    DrawCharacterSkill(character, skill);
+                }
+            }
+
             GUILayout.EndVertical();
             GUILayout.EndVertical();
         }
@@ -157,15 +150,56 @@ namespace Desperados3Mods.ExtendedCheats
             }
         }
 
-        static void DrawAdjustableInt(string label, string value, Action increase, Action decrease)
+        static void DrawCharacterSkill(MiCharacter character, Skill skill)
         {
+            var name = skill.m_skillData.name;
+
+            if (name == "PlayerSkillExecutor" || name == "SkillAutoUse" || name == "SkillGoto" || name == "SkillFollow" || name.StartsWith("SkillDieByBadFortune") || name == "SkillUseDoor")
+                return;
+
+            name = name.Replace("Skill", "");
+
+            if (name == "UseMode")
+            {
+                if (skill.GetType() != typeof(SkillTieUp)) return;
+                name = "TieUp";
+            }
+
+            switch (name.Remove(3).ToLower())
+            {
+                case "cop":
+                case "cpy":
+                case "kat":
+                case "mcc":
+                case "tra":
+                case "voo":
+                    name = name.Substring(6);
+                    break;
+                case "hea":
+                    name = "Heal";
+                    break;
+            }
+
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label(label, GUILayout.Width(200));
-            GUILayout.Label(value, GUILayout.Width(50));
+            GUILayout.Label(name, GUILayout.Width(200));
+            var active = GUILayout.Toggle(!skill.bPreventActivation, "Enabled", GUILayout.Width(100));
 
-            if (GUILayout.Button("-", GUILayout.Width(50))) increase();
-            if (GUILayout.Button("+", GUILayout.Width(50))) decrease();
+            if (active == skill.bPreventActivation) skill.preventActivation(!active, -1);
+
+            var playerSkill = skill as PlayerSkill;
+            if (playerSkill != null)
+            {
+                var ammoType = GetAmmoType(playerSkill);
+                if (ammoType != 0)
+                {
+                    GUILayout.Label($"Ammo: {playerSkill.iCount}/{character.m_charInventory.MaxCount(ammoType)}", GUILayout.Width(80));
+
+                    if (GUILayout.Button("-", GUILayout.Width(50))) character.m_charInventory.Remove(ammoType);
+                    if (GUILayout.Button("+", GUILayout.Width(50))) character.m_charInventory.Insert(ammoType);
+
+                }
+            }
 
             GUILayout.EndHorizontal();
         }
