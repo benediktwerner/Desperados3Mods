@@ -29,7 +29,7 @@ namespace Desperados3Mods.ExtendedCheats
                     new ConfigurationManagerAttributes
                     {
                         Category = "4. Overrides",
-                        CustomDrawer = DrawSkills,
+                        CustomDrawer = DrawOverrides,
                         HideDefaultButton = true,
                         HideSettingName = true
                     }
@@ -38,7 +38,7 @@ namespace Desperados3Mods.ExtendedCheats
             Load();
         }
 
-        void DrawSkills(ConfigEntryBase _)
+        void DrawOverrides(ConfigEntryBase _)
         {
             GUILayout.BeginVertical();
 
