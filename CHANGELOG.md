@@ -14,3 +14,4 @@
 - 1.1.1  Fix startingAmmo and maxHealth reset
 - curr   Add scene statistics reset command
          Add in-game showdown mode pause toggle
+         Allow disabling skills and characters

@@ -1,6 +1,5 @@
 ﻿using BepInEx.Configuration;
 using HarmonyLib;
-using System;
 using System.Collections;
 using System.Reflection;
 using UnityEngine;
@@ -10,6 +9,8 @@ namespace Desperados3Mods.ExtendedCheats
     static class Commands
     {
         static bool show = false;
+        static int charToShow = -1;
+        static int charCount = 0;
         static readonly FieldInfo fieldMissionSetupSettings_s_difficultySettings = AccessTools.Field(typeof(MissionSetupSettings), "s_difficultySettings");
 
         public static void Bind(ConfigFile config)
@@ -109,24 +110,60 @@ namespace Desperados3Mods.ExtendedCheats
             }
 #endif
 
-            for (int i = 0; i < gameInput.iPlayerCharacterCount; i++)
+            if (gameInput.iPlayerCharacterCount != charCount)
             {
-                MiCharacter character = gameInput.lPlayerCharacter[i];
-                var uiData = character.uiData;
-
-                if (string.IsNullOrWhiteSpace(uiData.lstrName.strText)) continue;
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(uiData.lstrName.strText, Main.SkinBold, GUILayout.Width(300));
-                GUILayout.Label($"Health: {character.m_charHealth.iHealth}", GUILayout.Width(80));
-                if (GUILayout.Button("-", GUILayout.Width(50))) character.m_charHealth.iHealth--;
-                if (GUILayout.Button("+", GUILayout.Width(50))) character.m_charHealth.iHealth++;
-                GUILayout.EndHorizontal();
-
-                foreach (var skill in character.controller.lSkills)
+                charToShow = -1;
+                charCount = gameInput.iPlayerCharacterCount;
+            }
+            else
+            {
+                for (int i = 0; i < gameInput.iPlayerCharacterCount; i++)
                 {
-                    DrawCharacterSkill(character, skill);
+                    MiCharacter character = gameInput.lPlayerCharacter[i];
+                    var uiData = character.uiData;
+
+                    if (string.IsNullOrWhiteSpace(uiData.lstrName.strText)) continue;
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(uiData.lstrName.strText, Main.SkinBold, GUILayout.Width(200));
+                    var enabled = GUILayout.Toggle(character.enabled, character.enabled ? "Enabled" : "Disabled", GUILayout.Width(100));
+
+                    if (!enabled)
+                    {
+                        if (character.enabled)
+                        {
+                            AccessTools.Method(typeof(MiCharacter), "disable").Invoke(gameInput.lPlayerCharacter[i], new object[] { false, false, false });
+                            if (charToShow == i) charToShow = -1;
+                        }
+                        GUILayout.EndHorizontal();
+                        continue;
+                    }
+
+                    if (!character.enabled)
+                    {
+                        AccessTools.Method(typeof(MiCharacter), "enable").Invoke(gameInput.lPlayerCharacter[i], new object[] { true, false, false, true });
+                    }
+
+                    GUILayout.Label($"Health: {character.m_charHealth.iHealth}", GUILayout.Width(80));
+                    if (GUILayout.Button("-", GUILayout.Width(50))) character.m_charHealth.iHealth--;
+                    if (GUILayout.Button("+", GUILayout.Width(50))) character.m_charHealth.iHealth++;
+                    if (GUILayout.Button(charToShow == i ? "Hide" : "Show"))
+                    {
+                        if (charToShow == i) charToShow = -1;
+                        else charToShow = i;
+                    }
+                    GUILayout.EndHorizontal();
+
+                    if (charToShow != i) continue;
+
+                    GUILayout.BeginVertical("box");
+                    foreach (var skill in character.controller.lSkills)
+                    {
+                        DrawCharacterSkill(character, skill);
+                    }
+                    GUILayout.EndVertical();
                 }
+
             }
 
             GUILayout.EndVertical();
