@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using MiCoreServices;
+using UnityEngine;
 
 namespace Desperados3Mods.Convenience
 {
@@ -10,7 +11,7 @@ namespace Desperados3Mods.Convenience
     {
         public const string GUID = "de.benediktwerner.desperados3.convenience";
         public const string Name = "Convenience";
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
 
         static ConfigEntry<bool> configStartHighlights;
         static ConfigEntry<bool> configStartZoom;
@@ -44,30 +45,22 @@ namespace Desperados3Mods.Convenience
 
         void OnApplicationFocus(bool hasFocus)
         {
-            bool changed = false;
-
             if (hasFocus)
             {
                 if (originalVolume != null)
                 {
                     Logger.LogDebug("Focus gained. Setting volume to: " + originalVolume);
-                    MiAudioMixer.s_fVolumeMaster = (float)originalVolume;
-                    changed = true;
+                    AudioListener.volume = (float)originalVolume;
                 }
                 else Logger.LogDebug("Focus gained but no previous volume known.");
                 originalVolume = null;
             }
             else if (configMuteMusicInBackground.Value && originalVolume == null && MiAudioMixer.s_fVolumeMaster > 0)
             {
-                originalVolume = MiAudioMixer.s_fVolumeMaster;
-                MiAudioMixer.s_fVolumeMaster = 0;
-                changed = true;
+                originalVolume = AudioListener.volume;
+                AudioListener.volume = 0;
                 Logger.LogDebug("Focus lost. Muting audio. Previous volume: " + originalVolume);
             }
-
-            if (!changed) return;
-
-            MiSingletonMonoResource<MiAudioMixer>.instance.applySettings();
         }
 
         static class Hooks
