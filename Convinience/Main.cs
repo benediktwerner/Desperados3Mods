@@ -50,9 +50,11 @@ namespace Desperados3Mods.Convenience
             {
                 if (originalVolume != null)
                 {
+                    Logger.LogDebug("Focus gained. Setting volume to: " + originalVolume);
                     MiAudioMixer.s_fVolumeMaster = (float)originalVolume;
                     changed = true;
                 }
+                else Logger.LogDebug("Focus gained but no previous volume known.");
                 originalVolume = null;
             }
             else if (configMuteMusicInBackground.Value && originalVolume == null && MiAudioMixer.s_fVolumeMaster > 0)
@@ -60,6 +62,7 @@ namespace Desperados3Mods.Convenience
                 originalVolume = MiAudioMixer.s_fVolumeMaster;
                 MiAudioMixer.s_fVolumeMaster = 0;
                 changed = true;
+                Logger.LogDebug("Focus lost. Muting audio. Previous volume: " + originalVolume);
             }
 
             if (!changed) return;
