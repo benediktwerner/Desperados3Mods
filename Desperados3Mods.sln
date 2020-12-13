@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convenience", "Convinience\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D1CooperGun", "D1CooperGun\D1CooperGun.csproj", "{EF650725-1AD8-46CB-8433-27DE5D38224A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterLevelEditor", "BetterLevelEditor\BetterLevelEditor.csproj", "{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{EF650725-1AD8-46CB-8433-27DE5D38224A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF650725-1AD8-46CB-8433-27DE5D38224A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF650725-1AD8-46CB-8433-27DE5D38224A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

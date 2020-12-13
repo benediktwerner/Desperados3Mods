@@ -1,0 +1,146 @@
+0000	Horse
+0100	Ox
+0101	Ox without accessories
+0102	Cow
+0200	Chicken
+0300	Horse
+0301	Horse without saddle
+0302	Horse without any accessories
+0400	Normal Female (plumb)
+0401	Normal Male (plumb)
+0402	Party Guest Male
+0403	Mine Worker
+0404	Waiter
+0405	Party Guest Female
+0406	Undertaker
+0407	Prostitute
+0408	Doctor/Dentist
+0409	Normal Female (thin)
+0410	Wedding Servant
+0411	Mariachi
+0412	Mayor Higgins
+0413	Quacksalesman
+0414	Train Conductor
+0415	Party Guest Male (blue jacket)
+0500	Normal Female (plumb)
+0501	Normal Male (plumb)
+0502	Party Guest Male
+0503	Waiter
+0504	Mine Worker
+0505	Party Guest Female
+0506	Undertaker
+0507	Prostitute
+0508	Doctor/Dentist
+0509	Normal Female (thin)
+0510	Ian O'Hara
+0511	Marshal Wayne
+0800	Dog Enemy
+0900	Long Coat 1
+0901	Long Coat Hector
+1000	Long Coat 2
+1100	Long Coat with Lamp
+1200	Thug with Shovel
+1201	Thug with Hammer
+1202	Thug with Pickaxe
+1203	Thug with Axe
+1300	Simple Guard Male
+1301	Simple Guard Female
+1400	Simple Guard Male
+1401	Simple Guard Male with Lamp
+1402	Simple Guard Female
+1403	Simple Guard Female with Lamp
+1500	Simple Guard Male with Lamp
+1501	Simple Guard Female with Lamp
+1600	Poncho Male
+1601	Poncho Female
+1602	Wild Marge
+1603	Poncho Male (blue)
+1604	McBane
+1605	Jarvis
+1606	Frank
+1607	Devitt
+1608	Big Ann
+1609	Frank with Blood
+1610	Young Frank
+1611	Poncho Male (blue)
+1612	Poncho Female (blue)
+1613	Poncho Male with Revolver (blue)
+1614	Poncho Female with Revolver (blue)
+1615	Foreman O’Neill
+1616	Judge McGain
+1700	Poncho Male
+1701	Poncho Male with lightless lamp
+1702	Poncho Female
+1703	Poncho Female with lightless lamp
+1704	Poncho Male (blue)
+1800	Poncho Male with lamp
+1801	Poncho Female with lamp
+1900	John Cooper
+1901	John Cooper (Casa DeVitt)
+1902	John Cooper (DeVitt Goldmine witout Hat, bent down)
+1903	John Cooper (DeVitt Goldmine witout Hat, straight)
+2000	Wounded John Cooper (DeVitt Goldmine)
+2001	Wounded John Cooper (DeVitt Goldmine witout Hat)
+2100	Young Cooper (with pistols)
+2200	Kate
+2201	Kate (Normal Dress)
+2202	Kate (Bride)
+2203	Kate (Maid)
+2204	Kate (Prostitute)
+2205	Kate (Alternate Dress)
+2206	Kate (Bloody Bride Dress)
+2300	Doc
+2301	Doc (DeVitt Goldmine without hat and coat)
+2400	Stella (Isabelle's cat)
+2500	Cooper's Shilouette (?)
+2600	Hector
+2601	Hector (DeVitt Goldmine without belongings)
+2700	Isabelle
+2701	Isabelle (DeVitt Goldmine)
+3000	Playable Stella
+3100	Playable Stella with Connect and Mind Control
+3200	Playable Chicken
+3300	Playable Chicken with Shotgun
+3400	Playable Dog
+3500	John Cooper
+3501	John Cooper (Casa DeVitt)
+3502	John Cooper (DeVitt Goldmine witout Hat, bent down)
+3600	Young Cooper (without pistols)
+3700	Kate
+3701	Kate (Normal Dress)
+3702	Kate (Bride)
+3703	Kate (Maid)
+3704	Kate (Prostitute)
+3705	Kate (Alternate Dress)
+3800	Doc
+3801	Doc (DeVitt Goldmine without hat and coat)
+3900	Stella (Isabelle's cat)
+3900	Cooper's Shilouette
+4000	Hector
+4001	Hector (DeVitt Goldmine without belongings)
+4100	Hector as Long Coat (can't use trap)
+4200	Isabelle
+4201	Isabelle (DeVitt Goldmine)
+6000	Walk Waypoint
+6001	Run Waypoint
+6002	Walk Ping Pong Waypoint
+6003	Run Ping Pong Waypoint
+6100	Cooper Ammobox
+6101	Kate Ammobox
+6102	McCoy Ammobox
+6103	Hector Ammobox
+6104	Isabelle Ammobox
+6105	Kate Disguise (Bridge)
+6106	Kate Disguise (Dress)
+6107	Kate Disguise (Prostitute)
+6108	Kate Disguise (Servant)
+6109	Swamp Torch 1
+6110	Swamp Torch 2
+6111	Gatling Gun
+6112	Dynamite Barrel
+6113	Oil Stain
+6115	Large Burning Pile
+6116	Small Burning Pile
+6117	O’Hara Ranch Firepit
+6118	Level End Dynamite Trigger
+6119	Regroup Point
