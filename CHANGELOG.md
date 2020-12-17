@@ -16,3 +16,4 @@
 - 1.2    Add scene statistics reset command
          Add in-game showdown mode pause toggle
          Allow disabling skills and characters
+- 1.2.1  Fix overrides not getting disabled when whole mod is disabled

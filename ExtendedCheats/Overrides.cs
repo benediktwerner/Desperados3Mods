@@ -128,7 +128,7 @@ namespace Desperados3Mods.ExtendedCheats
 
         internal void OnLevelLoad()
         {
-            if (configEnabled.Value && SceneStatistics.instance.iLoadCount == 0) Apply(start: true);
+            if (Main.configEnabled.Value && configEnabled.Value && SceneStatistics.instance.iLoadCount == 0) Apply(start: true);
         }
 
         void Apply(bool start = false)
