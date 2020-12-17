@@ -32,6 +32,6 @@ Alternatively, you can install the [BepInEx.ConfigurationManager](https://github
 - **Convenience**: [Convenience.dll v1.0.2](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.2.0/Convenience.dll)
 - **D1CooperGun**: [D1CooperGun.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/D1CooperGun.dll)
 - **DevKillsList**: [DevKillsList.dll v1.0.1](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.1.0/DevKillsList.dll)
-- **ExtendedCheats**: [ExtendedCheats.dll v1.2.1](https://github.com/benediktwerner/Desperados3Mods/releases/download/editor-v1.0.0/ExtendedCheats.dll)
+- **ExtendedCheats**: [ExtendedCheats.dll v1.2.2](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.2.2/ExtendedCheats.dll)
 - **KingsmanEasterEgg**: [KingsmanEasterEgg.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/KingsmanEasterEgg.dll)
 - **ShowdownModePauseOnDesperadoDiff**: [ShowdownModePauseOnDesperadoDiff.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/ShowdownModePauseOnDesperadoDiff.dll)

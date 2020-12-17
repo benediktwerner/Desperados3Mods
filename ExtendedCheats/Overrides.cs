@@ -23,7 +23,7 @@ namespace Desperados3Mods.ExtendedCheats
         {
             configEnabled = config.Bind("General", "Enable Overrides", false,
                 new ConfigDescription(
-                    "Enable overriding skills and character attributes. Use the in-game settings menu provided by BepInEx.ConfigurationManager or edit overrides.json to modify values (enter a level to generate).",
+                    "Enable overriding skills and character attributes. Use the in-game settings menu provided by BepInEx.ConfigurationManager or edit overrides.json to modify values (enter a level to generate the file).",
                     null,
                     new ConfigurationManagerAttributes
                     {
@@ -51,7 +51,7 @@ namespace Desperados3Mods.ExtendedCheats
             GUILayout.BeginVertical("box");
 
             GUILayout.BeginHorizontal();
-            configEnabled.Value = GUILayout.Toggle(configEnabled.Value, configEnabled.Value ? "Overrides Enabled" : "Overrides Disabled");
+            configEnabled.Value = GUILayout.Toggle(configEnabled.Value, "Apply overrides on startup");
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Reset all overrides", GUILayout.Width(200)))
             {
@@ -140,7 +140,7 @@ namespace Desperados3Mods.ExtendedCheats
             {
                 foreach (var characterOverride in CharacterOverrides)
                 {
-                    if (character.name.Contains(characterOverride.internalName, StringComparison.OrdinalIgnoreCase))
+                    if (character.m_eCharacter == characterOverride.characterType)
                     {
                         characterOverride.Apply(character, start);
                     }

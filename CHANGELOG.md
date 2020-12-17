@@ -17,3 +17,4 @@
          Add in-game showdown mode pause toggle
          Allow disabling skills and characters
 - 1.2.1  Fix overrides not getting disabled when whole mod is disabled
+- 1.2.2  Fix overrides messing up a lot of stuff

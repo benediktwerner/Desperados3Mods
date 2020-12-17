@@ -8,14 +8,16 @@ namespace Desperados3Mods.ExtendedCheats
     {
         public readonly string name;
         public readonly string internalName;
+        public readonly MiCharacter.CharacterType characterType;
         public int[] maxHealth;
         public readonly int[] maxHealthDefault;
         public readonly SkillOverride[] skillOverrides;
 
-        public CharacterOverride(string name, string internalName, int[] maxHealth, params SkillOverride[] skillOverrides)
+        public CharacterOverride(string name, string internalName, MiCharacter.CharacterType characterType, int[] maxHealth, params SkillOverride[] skillOverrides)
         {
             this.name = name;
             this.internalName = internalName;
+            this.characterType = characterType;
             this.skillOverrides = skillOverrides;
             this.maxHealth = maxHealth;
             maxHealthDefault = maxHealth.Clone() as int[];
@@ -98,31 +100,31 @@ namespace Desperados3Mods.ExtendedCheats
             uiData.m_iHealthCurrent.value = character.m_charHealth.m_iHealthMaxOverride;
             uiData.m_iHealthMax.value = character.m_charHealth.m_iHealthMaxOverride;
 
-            var slotHandlerMouse = Object.FindObjectOfType<UICharacterSlotHandlerMouse>();
-            if (slotHandlerMouse != null)
-            {
-                var mouseSlot = slotHandlerMouse.arUICharacterSlots[uiData.m_iSlotIndexMouse.value] as UICharacterSlotMouse;
-                if (mouseSlot != null)
-                {
-                    typeof(UICharacterSlotMouse).GetMethod("updateHealthBar", AccessTools.all).Invoke(mouseSlot, new object[] { true });
-                }
-            }
+            //var slotHandlerMouse = Object.FindObjectOfType<UICharacterSlotHandlerMouse>();
+            //if (slotHandlerMouse != null)
+            //{
+            //    var mouseSlot = slotHandlerMouse.arUICharacterSlots[uiData.m_iSlotIndexMouse.value] as UICharacterSlotMouse;
+            //    if (mouseSlot != null)
+            //    {
+            //        typeof(UICharacterSlotMouse).GetMethod("updateHealthBar", AccessTools.all).Invoke(mouseSlot, new object[] { true });
+            //    }
+            //}
 
-            var slotHandlerController = Object.FindObjectOfType<UICharacterSlotHandlerController>();
-            if (slotHandlerController != null)
-            {
-                var controllerSlot = slotHandlerController.arUICharacterSlots[uiData.m_iSlotIndexController.value] as UICharacterSlotWheel;
-                if (controllerSlot != null)
-                {
-                    typeof(UICharacterSlotMouse).GetMethod("updateHealthBar", AccessTools.all).Invoke(controllerSlot, new object[] { true });
-                }
-            }
+            //var slotHandlerController = Object.FindObjectOfType<UICharacterSlotHandlerController>();
+            //if (slotHandlerController != null)
+            //{
+            //    var controllerSlot = slotHandlerController.arUICharacterSlots[uiData.m_iSlotIndexController.value] as UICharacterSlotWheel;
+            //    if (controllerSlot != null)
+            //    {
+            //        typeof(UICharacterSlotWheel).GetMethod("updateHealthBar", AccessTools.all).Invoke(controllerSlot, new object[] { true });
+            //    }
+            //}
         }
 
         public static CharacterOverride[] GetAll()
         {
             return new CharacterOverride[] {
-                new CharacterOverride("Cooper", "cooper",
+                new CharacterOverride("Cooper", "cooper", MiCharacter.CharacterType.Cooper,
                     new int[]{4,3,2,2},
                     new SkillOverride(
                       name: "Kill",
@@ -155,7 +157,7 @@ namespace Desperados3Mods.ExtendedCheats
                       cooldown: 12
                     )
                 ),
-                new CharacterOverride("Hector", "trapper",
+                new CharacterOverride("Hector", "trapper", MiCharacter.CharacterType.Trapper,
                     new int[]{6,5,4,4},
                     new SkillOverride(
                       name: "Kill",
@@ -190,7 +192,7 @@ namespace Desperados3Mods.ExtendedCheats
                       cooldown: 0
                     )
                 ),
-                new CharacterOverride("McCoy", "mccoy",
+                new CharacterOverride("McCoy", "mccoy", MiCharacter.CharacterType.McCoy,
                     new int[]{4,3,2,2},
                     new SkillOverride(
                       name: "Kill",
@@ -224,7 +226,7 @@ namespace Desperados3Mods.ExtendedCheats
                         cooldown: 20
                     )
                 ),
-                new CharacterOverride("Isabelle", "voodoo",
+                new CharacterOverride("Isabelle", "voodoo", MiCharacter.CharacterType.Voodoo,
                     new int[]{4,3,2,2},
                     new SkillOverride(
                       name: "Kill",
@@ -256,7 +258,7 @@ namespace Desperados3Mods.ExtendedCheats
                       cooldown: 10
                     )
                 ),
-                new CharacterOverride("Kate", "kate",
+                new CharacterOverride("Kate", "kate", MiCharacter.CharacterType.Kate,
                     new int[]{4,3,2,2},
                     new SkillOverride(
                       name: "Stun",
