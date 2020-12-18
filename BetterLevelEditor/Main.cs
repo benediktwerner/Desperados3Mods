@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,17 @@ namespace Desperados3Mods.BetterLevelEditor
         public const string Version = "1.0";
 
         internal static ManualLogSource StaticLogger;
+
+        private static bool isSpawning = false;
+        private static MiCharacter.CharacterType optionUsableByCharType;
+        private static MiCharacter.CharacterType[] playerChars =
+        {
+            MiCharacter.CharacterType.Cooper,
+            MiCharacter.CharacterType.McCoy,
+            MiCharacter.CharacterType.Trapper,
+            MiCharacter.CharacterType.Kate,
+            MiCharacter.CharacterType.Voodoo,
+        };
 
         public ConfigEntry<KeyboardShortcut> ShowHotkey { get; private set; }
         public ConfigEntry<KeyboardShortcut> SpawnHotkey { get; private set; }
@@ -43,11 +55,14 @@ namespace Desperados3Mods.BetterLevelEditor
         public Main()
         {
             _windowId = GetHashCode();
+            optionUsableByCharType = playerChars.Aggregate((a, b) => a | b);
         }
 
         private bool _show = false;
-        public bool Show {
-            get => _show; set {
+        public bool Show
+        {
+            get => _show; set
+            {
                 if (Show != value)
                 {
                     _show = value;
@@ -64,7 +79,7 @@ namespace Desperados3Mods.BetterLevelEditor
                         panel.transform.SetParent(_clickBlockerCanvas.transform);
                         _clickBlockerRect = panel.GetComponent<RectTransform>();
                         UpdateClickBlockerSize();
-                        panel.GetComponent<Image>().color = new Color(0, 0, 0, 0.3f);
+                        panel.GetComponent<Image>().color = new Color(0, 0, 0, 0.8f);
                     }
                     else
                     {
@@ -113,19 +128,25 @@ namespace Desperados3Mods.BetterLevelEditor
                 error = "Failed to load 'spawn_codes.txt': " + e;
                 Logger.LogError(error);
             }
+
+            Harmony.CreateAndPatchAll(typeof(Patch));
         }
 
         private void Update()
         {
             if (Input.GetKeyDown(ShowHotkey.Value.MainKey))
+            {
                 Show = !Show;
+            }
 
             if (Input.GetKeyDown(SpawnHotkey.Value.MainKey) && selectedCode != -1 && MiGameInput.instance.iPlayerCharacterCount > 0)
             {
                 var inputs = AccessTools.Field(typeof(UIManager), "m_dicPlayerInputs").GetValue(UIManager.instance) as Dictionary<GameUser, MiPlayerInput>;
                 foreach (var input in inputs.Values)
                 {
+                    isSpawning = true;
                     input.devSpawn(selectedCode / 100, selectedCode % 100);
+                    isSpawning = false;
                     break;
                 }
             }
@@ -180,17 +201,34 @@ namespace Desperados3Mods.BetterLevelEditor
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndScrollView();
+            DrawOptions();
             GUILayout.EndVertical();
 
             GUI.DragWindow();
             UpdateClickBlockerSize();
         }
 
+        private void DrawOptions()
+        {
+            // TODO: Enemy health?
+            if (selectedCode == 6118)
+            {
+                GUILayout.BeginVertical("box");
+                foreach (var c in playerChars)
+                {
+                    var isActive = (optionUsableByCharType & c) != 0;
+                    var shouldActive = GUILayout.Toggle(isActive, c.ToNiceString());
+                    if (shouldActive != isActive) optionUsableByCharType ^= c;
+                }
+                GUILayout.EndVertical();
+            }
+        }
+
         private void UpdateClickBlockerSize()
         {
             if (_clickBlockerRect == null) return;
             _clickBlockerRect.anchorMin = new Vector2(WindowRect.x / Screen.width, 1 - WindowRect.y / Screen.height);
-            _clickBlockerRect.anchorMax = new Vector2(WindowRect.xMax / Screen.width, 1- WindowRect.yMax / Screen.height);
+            _clickBlockerRect.anchorMax = new Vector2(WindowRect.xMax / Screen.width, 1 - WindowRect.yMax / Screen.height);
             _clickBlockerRect.offsetMin = Vector2.zero;
             _clickBlockerRect.offsetMax = Vector2.zero;
             _clickBlockerRect.offsetMax = Vector2.zero;
@@ -214,6 +252,34 @@ namespace Desperados3Mods.BetterLevelEditor
         private bool IsFavorite(int code)
         {
             return favorites.Set.Contains(code);
+        }
+
+        public static void PostSpawnUsable(GameObject go)
+        {
+            if (!isSpawning) return;
+            MiUsable usable = go.GetComponent<MiUsable>();
+            usable.m_eCanUsedBy = optionUsableByCharType;
+        }
+    }
+
+    [HarmonyPatch]
+    class Patch
+    {
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(MiGameInput), nameof(MiGameInput.devSpawnUsable))]
+        public static IEnumerable<CodeInstruction> MiGameInput_devSpawnUsable_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(OpCodes.Ldc_I4_1),
+                    new CodeMatch(OpCodes.Ret))
+                .Repeat(matcher => matcher
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldloc_1),
+                        new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Main), nameof(Main.PostSpawnUsable))))
+                    .Advance(2)
+                )
+                .InstructionEnumeration();
         }
     }
 
@@ -250,6 +316,22 @@ namespace Desperados3Mods.BetterLevelEditor
             Version = 0;
             List = favorites;
             Set = new HashSet<int>(List);
+        }
+    }
+
+    static class Extensions
+    {
+        public static String ToNiceString(this MiCharacter.CharacterType c)
+        {
+            switch (c)
+            {
+                case MiCharacter.CharacterType.Cooper: return "Cooper";
+                case MiCharacter.CharacterType.McCoy: return "McCoy";
+                case MiCharacter.CharacterType.Trapper: return "Hector";
+                case MiCharacter.CharacterType.Kate: return "Kate";
+                case MiCharacter.CharacterType.Voodoo: return "Isabelle";
+                default: return "Non-player character";
+            }
         }
     }
 }
