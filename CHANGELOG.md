@@ -18,3 +18,7 @@
          Allow disabling skills and characters
 - 1.2.1  Fix overrides not getting disabled when whole mod is disabled
 - 1.2.2  Fix overrides messing up a lot of stuff
+
+# BetterLevelEditor
+- 1.0    Initial release
+- 1.1    Add options to spawn level end trigger which can only be used by certain characters
