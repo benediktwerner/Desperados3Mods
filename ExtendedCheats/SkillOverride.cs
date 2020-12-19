@@ -38,7 +38,7 @@ namespace Desperados3Mods.ExtendedCheats
             range = DrawFloatField(name, "Range", range, rangeDefault);
             cooldown = DrawFloatField(name, "Cooldown", cooldown, cooldownDefault);
             maxAmmo = DrawIntField(name, "Max Ammo", maxAmmo, maxAmmoDefault);
-            DrawIntArrayField(name, "Starting Ammo", startingAmmo, startingAmmoDefault);
+            DrawIntArrayField(name, "Starting Ammo", ref startingAmmo, startingAmmoDefault);
         }
 
         public void Reset()
@@ -118,7 +118,7 @@ namespace Desperados3Mods.ExtendedCheats
             return newVal;
         }
 
-        internal static void DrawIntArrayField(string mainLabel, string subLabel, int[] value, int[] valueDefault)
+        internal static void DrawIntArrayField(string mainLabel, string subLabel, ref int[] value, int[] valueDefault)
         {
             if (valueDefault == null) return;
             DrawFieldHeader(mainLabel, subLabel);

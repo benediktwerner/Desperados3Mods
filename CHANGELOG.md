@@ -18,6 +18,7 @@
          Allow disabling skills and characters
 - 1.2.1  Fix overrides not getting disabled when whole mod is disabled
 - 1.2.2  Fix overrides messing up a lot of stuff
+- 1.2.3  Fix overrides array reset
 
 # BetterLevelEditor
 - 1.0    Initial release

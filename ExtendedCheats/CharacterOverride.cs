@@ -38,7 +38,7 @@ namespace Desperados3Mods.ExtendedCheats
             if (!showChar) return;
 
             GUILayout.BeginVertical("box");
-            SkillOverride.DrawIntArrayField("Max Health", "", maxHealth, maxHealthDefault);
+            SkillOverride.DrawIntArrayField("Max Health", "", ref maxHealth, maxHealthDefault);
             foreach (var o in skillOverrides) o.Draw();
             GUILayout.EndVertical();
         }

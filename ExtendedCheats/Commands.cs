@@ -1,6 +1,8 @@
-﻿using BepInEx.Configuration;
+using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 
