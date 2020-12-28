@@ -16,6 +16,16 @@ You can find me (1vader#0203) on the official [Desperados III](https://discord.g
 
 ## Installation
 
+Either watch this video or follow the instructions below.
+
+[![Video with installation instructions](https://img.youtube.com/vi/2VjVBvPL5d8/0.jpg)](https://www.youtube.com/watch?v=2VjVBvPL5d8)
+
+### Using ytinu
+
+The easiest way is to install [ytinu](ytinu-mods/ytinu). It sets up everything for you and you can then install mods with one click. The ytinu page has instructions on how to install and use it.
+
+### Manual installation
+
 Download BepInEx version 5.4 from its [releases page](https://github.com/BepInEx/BepInEx/releases) and extract it in your games installation directory. You should have a directory called `BepInEx` right next to the `Desperados III.exe`. See also [Installing BepInEx](https://bepinex.github.io/bepinex_docs/master/articles/user_guide/installation/index.html).
 
 Next, download any mods you want to use and place them in the `BepInEx/plugins` directory.
