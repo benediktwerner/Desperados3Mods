@@ -17,8 +17,6 @@ namespace Desperados3Mods.Convenience
         static ConfigEntry<bool> configStartZoom;
         static ConfigEntry<bool> configMuteMusicInBackground;
 
-        static float? originalVolume = null;
-
         void Awake()
         {
             configStartHighlights = Config.Bind("General", "Start Highlights On", false);
@@ -26,41 +24,6 @@ namespace Desperados3Mods.Convenience
             configMuteMusicInBackground = Config.Bind("General", "Mute Music when in Background", false);
 
             Harmony.CreateAndPatchAll(typeof(Hooks));
-        }
-
-        void Start() => GlobalManager.executeOnInit(OnGlobalManagerInit, 0);
-
-        private void OnGlobalManagerInit()
-        {
-            GlobalManager.instance.processLifetimeService.Suspending += OnApplicationSuspended;
-            GlobalManager.instance.processLifetimeService.Resuming += OnApplicationResumed;
-            GlobalManager.instance.processLifetimeService.Constrained += OnApplicationConstrained;
-            GlobalManager.instance.processLifetimeService.Unconstrained += OnApplicationUnconstrained;
-        }
-
-        private void OnApplicationSuspended() => OnApplicationFocus(false);
-        private void OnApplicationResumed() => OnApplicationFocus(false);
-        private void OnApplicationConstrained() => OnApplicationFocus(false);
-        private void OnApplicationUnconstrained() => OnApplicationFocus(false);
-
-        void OnApplicationFocus(bool hasFocus)
-        {
-            if (hasFocus)
-            {
-                if (originalVolume != null)
-                {
-                    Logger.LogDebug("Focus gained. Setting volume to: " + originalVolume);
-                    AudioListener.volume = (float)originalVolume;
-                }
-                else Logger.LogDebug("Focus gained but no previous volume known.");
-                originalVolume = null;
-            }
-            else if (configMuteMusicInBackground.Value && originalVolume == null && MiAudioMixer.s_fVolumeMaster > 0)
-            {
-                originalVolume = AudioListener.volume;
-                AudioListener.volume = 0;
-                Logger.LogDebug("Focus lost. Muting audio. Previous volume: " + originalVolume);
-            }
         }
 
         static class Hooks
@@ -107,6 +70,16 @@ namespace Desperados3Mods.Convenience
                         zoomOutNext = false;
                     }
                 }
+            }
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(GlobalUnityListener), "updateFocus")]
+            internal static void GlobalUnityListener_updateFocus(GlobalUnityListener __instance)
+            {
+                if (__instance.bApplicationFocus)
+                    AudioListener.volume = 1;
+                else if (configMuteMusicInBackground.Value)
+                    AudioListener.volume = 0;
             }
         }
     }
