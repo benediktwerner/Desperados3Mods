@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D1CooperGun", "D1CooperGun\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterLevelEditor", "BetterLevelEditor\BetterLevelEditor.csproj", "{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressRestorer", "ProgressRestorer\ProgressRestorer.csproj", "{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,6 +13,7 @@ You can find me (1vader#0203) on the official [Desperados III](https://discord.g
 - **ExtendedCheats**: Collection of random cheats like infinite ammo or modifying ability ranges.
 - **KingsmanEasterEgg**: Allows you to modify the chance that a snipe with Doc will trigger the [exploding heads easter egg](https://desperados.fandom.com/wiki/Desperados_III_Easter_Eggs#Exploding_Heads). Usually the chance for this is 0.1% so most people will probably never see it without this.
 - **ShowdownModePauseOnDesperadoDiff**: Allows you to enable pausing Showdown mode on Desperado difficulty.
+- **ProgressRestorer**: Easily restore lost progress (i.e. unlocked levels and badges).
 
 ## Installation
 
@@ -39,9 +40,10 @@ Alternatively, you can install the [BepInEx.ConfigurationManager](https://github
 ### Direct Download Links
 
 - **BetterLevelEditor**: [BetterLevelEditor.zip v1.1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/editor-v1.1.0/BetterLevelEditor.zip)
-- **Convenience**: [Convenience.dll v1.0.2](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.2.0/Convenience.dll)
+- **Convenience**: [Convenience.dll v1.0.3](https://github.com/benediktwerner/Desperados3Mods/releases/download/progress-v1.0.0/Convenience.dll)
 - **D1CooperGun**: [D1CooperGun.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/D1CooperGun.dll)
 - **DevKillsList**: [DevKillsList.dll v1.0.1](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.1.0/DevKillsList.dll)
 - **ExtendedCheats**: [ExtendedCheats.dll v1.2.3](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.2.3/ExtendedCheats.dll)
 - **KingsmanEasterEgg**: [KingsmanEasterEgg.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/KingsmanEasterEgg.dll)
 - **ShowdownModePauseOnDesperadoDiff**: [ShowdownModePauseOnDesperadoDiff.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/ShowdownModePauseOnDesperadoDiff.dll)
+- **ProgressRestorer**: [ProgressRestorer.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/progress-v1.0.0/ProgressRestorer.dll)
