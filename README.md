@@ -23,7 +23,7 @@ Either watch this video or follow the instructions below.
 
 ### Using ytinu
 
-The easiest way is to install [ytinu](ytinu-mods/ytinu). It sets up everything for you and you can then install mods with one click. The ytinu page has instructions on how to install and use it.
+The easiest way is to install [ytinu](https://github.com/ytinu-mods/ytinu). It sets up everything for you and you can then install mods with one click. The ytinu page has instructions on how to install and use it.
 
 ### Manual installation
 
