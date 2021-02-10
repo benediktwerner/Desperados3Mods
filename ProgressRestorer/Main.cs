@@ -1,6 +1,8 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -12,6 +14,8 @@ namespace Desperados3Mods.ProgressRestorer
         public const string GUID = "de.benediktwerner.desperados3.progressrestorer";
         public const string Name = "ProgressRestorer";
         public const string Version = "1.1.0";
+
+        static ManualLogSource StaticLogger;
 
         static bool showBadges = false;
         static bool showAchievements = false;
@@ -33,6 +37,8 @@ namespace Desperados3Mods.ProgressRestorer
                     }
                 )
             );
+
+            StaticLogger = Logger;
         }
 
         static void Draw(ConfigEntryBase entry)
@@ -70,7 +76,15 @@ namespace Desperados3Mods.ProgressRestorer
             if (showAchievements)
             {
                 GUILayout.BeginVertical("box");
-                DrawAchievements();
+                try
+                {
+                    DrawAchievements();
+                }
+                catch (Exception e)
+                {
+                    StaticLogger.LogError(e);
+                    message = "Error:\n" + e.ToString();
+                }
                 GUILayout.EndVertical();
             }
 
