@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 using System.Linq;
 using UnityEngine;
 
@@ -10,9 +11,15 @@ namespace Desperados3Mods.ProgressRestorer
     {
         public const string GUID = "de.benediktwerner.desperados3.progressrestorer";
         public const string Name = "ProgressRestorer";
-        public const string Version = "1.0.0";
+        public const string Version = "1.1.0";
 
+        static bool showBadges = false;
+        static bool showAchievements = false;
         static int? selectedMission = null;
+        static string achievementIDString = "";
+        static int? achievementID = null;
+        static string message = "";
+        static int progress = 0;
 
         void Awake()
         {
@@ -41,6 +48,42 @@ namespace Desperados3Mods.ProgressRestorer
                 MiSingletonNoMono<SaveGameManager>.instance.saveSaveGameUser();
             }
 
+            if (GUILayout.Button("Badges"))
+            {
+                showBadges = !showBadges;
+                showAchievements = false;
+            }
+
+            if (showBadges)
+            {
+                GUILayout.BeginVertical("box");
+                DrawBadges(saveGameUser);
+                GUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("Achievements"))
+            {
+                showAchievements = !showAchievements;
+                showBadges = false;
+            }
+
+            if (showAchievements)
+            {
+                GUILayout.BeginVertical("box");
+                DrawAchievements();
+                GUILayout.EndVertical();
+            }
+
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                GUILayout.Label(message);
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        static void DrawBadges(SaveGameUser saveGameUser)
+        {
             foreach (var mission in saveGameUser.lSaveMissionData)
             {
                 if (mission.m_liBadgeData.Count == 0) continue;
@@ -79,7 +122,8 @@ namespace Desperados3Mods.ProgressRestorer
                     GUILayout.BeginHorizontal();
                     GUILayout.Label(badge.badgeRef.lstrText.strText);
                     if (badge.bCompleted) GUILayout.Label("Completed", GUILayout.Width(200));
-                    else if (GUILayout.Button("Complete", GUILayout.Width(200))) {
+                    else if (GUILayout.Button("Complete", GUILayout.Width(200)))
+                    {
                         badge.setComplete(0);
                         MiSingletonNoMono<SaveGameManager>.instance.saveSaveGameUser();
                     }
@@ -87,8 +131,87 @@ namespace Desperados3Mods.ProgressRestorer
                 }
                 GUILayout.EndVertical();
             }
+        }
 
-            GUILayout.EndVertical();
+        static void DrawAchievements()
+        {
+            var service = PrimaryGameUser.gameUserHolder.achievementsService as MiCoreServices.AchievementsServiceBase;
+            if (service == null)
+            {
+                GUILayout.Label("Unable to retrieve achievement service status");
+            }
+            else
+            {
+                GUILayout.Label("Achievement service state: " + service.eStateAchievements);
+                GUILayout.Label("Achievement service API running: " + MiCoreServices.GlobalManager.instance.API.bAPIRunning);
+                GUILayout.Label("Achievement service connected: " + service.IsConnected);
+                GUILayout.Label("Achievement service activated: " + service.IsActivated);
+            }
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Achievement ID:");
+            achievementIDString = GUILayout.TextField(achievementIDString);
+            if (GUILayout.Button("Load"))
+            {
+                if (int.TryParse(achievementIDString, out var newAchievementID))
+                {
+                    achievementID = newAchievementID;
+                    message = "";
+                }
+                else
+                {
+                    achievementID = null;
+                    message = "Invalid ID";
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            if (achievementID != null)
+            {
+                var a = AchievementCollection.instance.liAchievements.Where(x => x.iEnumID == (int)achievementID).SingleOrDefault() as Achievement;
+                if (a == null)
+                {
+                    message = "No achievement with ID " + achievementID;
+                    return;
+                }
+
+                GUILayout.Label("ID: " + achievementID);
+                GUILayout.Label("Name: " + a.strName);
+                GUILayout.Label("Type: " + a.eType);
+                if (a.eType == Achievement.Type.Progress) GUILayout.Label("Progress: " + a.iProgress + "/" + a.iProgressCount);
+                GUILayout.Label("State: " + a.eCompleteState);
+
+                if (GUILayout.Button("Reset progress"))
+                {
+                    AccessTools.Field(typeof(Achievement), "m_iProgress").SetValue(a, 0);
+                }
+
+                if (GUILayout.Button("Reset state"))
+                {
+                    AccessTools.Field(typeof(Achievement), "m_eCompleteState").SetValue(a, Achievement.CompleteState.Running);
+                }
+
+                GUILayout.BeginHorizontal();
+                var progressString = GUILayout.TextField(progress.ToString());
+                if (string.IsNullOrWhiteSpace(progressString)) progress = 0;
+                else int.TryParse(progressString, out progress);
+                if (GUILayout.Button("Set Progress"))
+                {
+                    AccessTools.Field(typeof(Achievement), "m_iProgress").SetValue(a, progress);
+                }
+                GUILayout.EndHorizontal();
+
+                if (GUILayout.Button("Trigger increase progress"))
+                {
+                    a.progressCount(1);
+                }
+
+                if (GUILayout.Button("Trigger completion"))
+                {
+                    AccessTools.Field(typeof(Achievement), "m_eCompleteState").SetValue(a, Achievement.CompleteState.CompletingAwaitingApiCall);
+                    PrimaryGameUser.gameUserHolder.achievementsService.completeAchievement(a);
+                }
+            }
         }
     }
 }

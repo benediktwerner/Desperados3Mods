@@ -24,3 +24,7 @@
 # BetterLevelEditor
 - 1.0    Initial release
 - 1.1    Add options to spawn level end trigger which can only be used by certain characters
+
+# ProgressRestorer
+- 1.0    Initial release
+- 1.1    Allow managing achievements
