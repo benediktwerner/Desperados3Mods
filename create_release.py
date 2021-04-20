@@ -4,7 +4,7 @@ import os, zipfile, shutil
 
 mods = [
     "BetterLevelEditor",
-    "Convinience",
+    "Convenience",
     "D1CooperGun",
     "DevKillsList",
     "ExtendedCheats",
