@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedCheats", "ExtendedC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevKillsList", "DevKillsList\DevKillsList.csproj", "{37A1CE85-BCF4-4D76-A66B-D0D5A5250BB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convenience", "Convinience\Convenience.csproj", "{1743643E-93CD-4AB5-AE29-F759BF39D7E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Convenience", "Convenience\Convenience.csproj", "{1743643E-93CD-4AB5-AE29-F759BF39D7E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D1CooperGun", "D1CooperGun\D1CooperGun.csproj", "{EF650725-1AD8-46CB-8433-27DE5D38224A}"
 EndProject
