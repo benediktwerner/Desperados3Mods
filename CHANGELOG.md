@@ -28,3 +28,9 @@
 # ProgressRestorer
 - 1.0    Initial release
 - 1.1    Allow managing achievements
+
+# KingsmanEasterEgg
+- 1.0    Initial release
+- 1.1    Add option to force Kate to use the Shadow Tactics fan when doing her fan idle animation wearing a disguise
+- 1.2    Add option to remove the idle animations cooldown causing characters to continously play one idle animation after another
+
