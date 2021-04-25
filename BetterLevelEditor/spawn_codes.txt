@@ -34,6 +34,8 @@
 0509	Normal Female (thin)
 0510	Ian O'Hara
 0511	Marshal Wayne
+0600	James Cooper
+0700	Marshal Wayne
 0800	Dog Enemy
 0900	Long Coat 1
 0901	Long Coat Hector
