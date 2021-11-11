@@ -43,7 +43,7 @@ Alternatively, you can install the [BepInEx.ConfigurationManager](https://github
 - **Convenience**: [Convenience.dll v1.0.3](https://github.com/benediktwerner/Desperados3Mods/releases/download/progress-v1.0.0/Convenience.dll)
 - **D1CooperGun**: [D1CooperGun.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/D1CooperGun.dll)
 - **DevKillsList**: [DevKillsList.dll v1.0.1](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.1.0/DevKillsList.dll)
-- **ExtendedCheats**: [ExtendedCheats.dll v1.2.3](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.2.3/ExtendedCheats.dll)
+- **ExtendedCheats**: [ExtendedCheats.dll v1.3](https://github.com/benediktwerner/Desperados3Mods/releases/download/cheats-v1.3.0/ExtendedCheats.dll)
 - **KingsmanEasterEgg**: [KingsmanEasterEgg.dll v1.2](https://github.com/benediktwerner/Desperados3Mods/releases/download/easter-egg-v1.2.0/KingsmanEasterEgg.dll)
 - **ShowdownModePauseOnDesperadoDiff**: [ShowdownModePauseOnDesperadoDiff.dll v1.0](https://github.com/benediktwerner/Desperados3Mods/releases/download/v1.0.0/ShowdownModePauseOnDesperadoDiff.dll)
 - **ProgressRestorer**: [ProgressRestorer.dll v1.1](https://github.com/benediktwerner/Desperados3Mods/releases/download/progress-v1.1.0/ProgressRestorer.dll)

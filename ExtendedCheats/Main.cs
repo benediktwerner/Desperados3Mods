@@ -16,7 +16,7 @@ namespace Desperados3Mods.ExtendedCheats
     {
         public const string GUID = "de.benediktwerner.desperados3.extendedcheats";
         public const string Name = "ExtendedCheats";
-        public const string Version = "1.2";
+        public const string Version = "1.3";
 
         public static ConfigEntry<bool> configEnabled;
         public static ConfigEntry<bool> configInfiniteAmmo;

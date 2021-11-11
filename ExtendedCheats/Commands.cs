@@ -163,6 +163,8 @@ namespace Desperados3Mods.ExtendedCheats
                     {
                         DrawCharacterSkill(character, skill);
                     }
+                    DrawLevelInfoFlag(character, "Neutral Zone 1", LevelInformationLayer.LevelInfoFlag.NeutralZone1);
+                    DrawLevelInfoFlag(character, "Neutral Zone 2", LevelInformationLayer.LevelInfoFlag.NeutralZone2);
                     GUILayout.EndVertical();
                 }
 
@@ -239,6 +241,19 @@ namespace Desperados3Mods.ExtendedCheats
 
                 }
             }
+
+            GUILayout.EndHorizontal();
+        }
+
+        static void DrawLevelInfoFlag(MiCharacter character, string name, LevelInformationLayer.LevelInfoFlag flag)
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(name, GUILayout.Width(200));
+            var before = character.m_eLevelInformationMask.HasFlag(flag);
+            var after = GUILayout.Toggle(before, "Enabled", GUILayout.Width(100));
+
+            if (before != after) character.m_eLevelInformationMask ^= flag;
 
             GUILayout.EndHorizontal();
         }
