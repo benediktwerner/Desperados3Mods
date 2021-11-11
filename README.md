@@ -27,7 +27,7 @@ The easiest way is to install [ytinu](https://github.com/ytinu-mods/ytinu). It s
 
 ### Manual installation
 
-Download BepInEx version 5.4 from its [releases page](https://github.com/BepInEx/BepInEx/releases) and extract it in your games installation directory. You should have a directory called `BepInEx` right next to the `Desperados III.exe`. See also [Installing BepInEx](https://bepinex.github.io/bepinex_docs/master/articles/user_guide/installation/index.html).
+Download BepInEx version 5.4 from its [releases page](https://github.com/BepInEx/BepInEx/releases) and extract it in your games installation directory. You should have a directory called `BepInEx` right next to the `Desperados III.exe`. See also [Installing BepInEx](https://docs.bepinex.dev/articles/user_guide/installation/index.html).
 
 Next, download any mods you want to use and place them in the `BepInEx/plugins` directory.
 
