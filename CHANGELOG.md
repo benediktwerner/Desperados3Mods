@@ -21,6 +21,10 @@
 - 1.2.2  Fix overrides messing up a lot of stuff
 - 1.2.3  Fix overrides array reset
 - 1.3    Add option to disable neutral zones (under commands, for each character)
+- 1.4    Allow disabling regroup points (by character and completely)
+         Allow disabling all usable items (e.g. gatliings, doors, dynamite, etc.) by character or completely
+         Hide disabled characters
+         Allow adjusting character order
 
 # BetterLevelEditor
 - 1.0    Initial release
@@ -34,4 +38,3 @@
 - 1.0    Initial release
 - 1.1    Add option to force Kate to use the Shadow Tactics fan when doing her fan idle animation wearing a disguise
 - 1.2    Add option to remove the idle animations cooldown causing characters to continously play one idle animation after another
-

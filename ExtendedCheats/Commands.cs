@@ -1,8 +1,7 @@
-using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections;
-using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -13,6 +12,15 @@ namespace Desperados3Mods.ExtendedCheats
         static bool show = false;
         static int charToShow = -1;
         static int charCount = 0;
+        static bool showRegroups = false;
+
+        static bool showUsables = false;
+        static MiUsable[] usables = null;
+        static int selectedUsable = -1;
+        static float usablesLastUpdate = 0;
+        static int usablesPage = 0;
+        const int PAGE_SIZE = 20;
+
         static readonly FieldInfo fieldMissionSetupSettings_s_difficultySettings = AccessTools.Field(typeof(MissionSetupSettings), "s_difficultySettings");
 
         public static void Bind(ConfigFile config)
@@ -43,7 +51,7 @@ namespace Desperados3Mods.ExtendedCheats
 
             GUILayout.BeginVertical();
 
-            if (GUILayout.Button(show ? "Hide" : "Show")) show = !show;
+            if (GUILayout.Button(show ? "Hide" : "Expand")) show = !show;
             if (!show)
             {
                 GUILayout.EndVertical();
@@ -100,6 +108,9 @@ namespace Desperados3Mods.ExtendedCheats
                 statsNoSaveData.lPlayerStateDurations.Clear();
             }
 
+            DrawRegroups();
+            DrawMiUsables();
+
 #if DEBUG
             if (GUILayout.Button("Dump Skill Data"))
             {
@@ -134,7 +145,8 @@ namespace Desperados3Mods.ExtendedCheats
                     {
                         if (character.enabled)
                         {
-                            AccessTools.Method(typeof(MiCharacter), "disable").Invoke(gameInput.lPlayerCharacter[i], new object[] { false, false, false });
+                            AccessTools.Method(typeof(MiCharacter), "disable").Invoke(character, new object[] { false, false, false });
+                            character.gameObject.SetActive(false);
                             if (charToShow == i) charToShow = -1;
                         }
                         GUILayout.EndHorizontal();
@@ -143,13 +155,14 @@ namespace Desperados3Mods.ExtendedCheats
 
                     if (!character.enabled)
                     {
-                        AccessTools.Method(typeof(MiCharacter), "enable").Invoke(gameInput.lPlayerCharacter[i], new object[] { true, false, false, true });
+                        AccessTools.Method(typeof(MiCharacter), "enable").Invoke(character, new object[] { true, false, false, true });
+                        character.gameObject.SetActive(true);
                     }
 
                     GUILayout.Label($"Health: {character.m_charHealth.iHealth}", GUILayout.Width(80));
                     if (GUILayout.Button("-", GUILayout.Width(50))) character.m_charHealth.iHealth--;
                     if (GUILayout.Button("+", GUILayout.Width(50))) character.m_charHealth.iHealth++;
-                    if (GUILayout.Button(charToShow == i ? "Hide" : "Show"))
+                    if (GUILayout.Button(charToShow == i ? "Hide" : "Expand"))
                     {
                         if (charToShow == i) charToShow = -1;
                         else charToShow = i;
@@ -165,12 +178,133 @@ namespace Desperados3Mods.ExtendedCheats
                     }
                     DrawLevelInfoFlag(character, "Neutral Zone 1", LevelInformationLayer.LevelInfoFlag.NeutralZone1);
                     DrawLevelInfoFlag(character, "Neutral Zone 2", LevelInformationLayer.LevelInfoFlag.NeutralZone2);
+
+                    var playerController = character.controller as MiCharacterControllerPlayer;
+                    if (playerController != null)
+                    {
+                        GUILayout.BeginHorizontal();
+
+                        GUILayout.Label("Character Slot (0 = None)", GUILayout.Width(200));
+
+                        var before = SelectionInputToInt(playerController.eSelectionInput) + 1;
+                        var afterStr = GUILayout.TextField(before.ToString(), Main.SkinFloatField, GUILayout.Width(30));
+                        if (!string.IsNullOrWhiteSpace(afterStr) && int.TryParse(afterStr, out var after) && after != before)
+                            playerController.setSelectionInputBySlotIndex(after - 1);
+
+                        GUILayout.Label("Disable and Enable character to apply");
+                        GUILayout.EndHorizontal();
+                    }
+
                     GUILayout.EndVertical();
                 }
 
             }
 
             GUILayout.EndVertical();
+            GUILayout.EndVertical();
+        }
+
+        static void DrawRegroups()
+        {
+            if (GUILayout.Button(showRegroups ? "Hide meeting points" : "Expand meeting points")) showRegroups = !showRegroups;
+            if (!showRegroups) return;
+
+            GUILayout.BeginVertical("box");
+
+            var regroups = Object.FindObjectsOfType<TriggerVolumeRegroup>();
+
+            foreach (var regroup in regroups)
+            {
+                if (regroup.transform.position.sqrMagnitude == 0) continue;
+
+                GUILayout.BeginVertical("box");
+                GUILayout.Label(regroup.gameObject.name);
+                var enabled = GUILayout.Toggle(regroup.enabled, regroup.enabled ? "Enabled" : "Disabled");
+                if (enabled != regroup.enabled)
+                {
+                    regroup.enabled = enabled;
+                    var minDist = float.PositiveInfinity;
+                    UITriggerVolumeRegroup minUi = null;
+                    var field = AccessTools.Field(typeof(UITriggerVolumeRegroup), "m_v3WorldPosition");
+                    foreach (var ui in Resources.FindObjectsOfTypeAll(typeof(UITriggerVolumeRegroup)))
+                    {
+                        var dist = Vector3.Distance((Vector3)field.GetValue(ui), regroup.transform.position);
+                        if (dist > minDist || minUi == null) continue;
+                        minDist = dist;
+                        minUi = ui as UITriggerVolumeRegroup;
+                    }
+                    if (minUi != null) minUi.gameObject.SetActive(enabled);
+                }
+
+                DrawCharacterFlag("Cooper", ref regroup.m_eCondition, MiCharacter.CharacterType.Cooper);
+                DrawCharacterFlag("Doc", ref regroup.m_eCondition, MiCharacter.CharacterType.McCoy);
+                DrawCharacterFlag("Hector", ref regroup.m_eCondition, MiCharacter.CharacterType.Trapper);
+                DrawCharacterFlag("Kate", ref regroup.m_eCondition, MiCharacter.CharacterType.Kate);
+                DrawCharacterFlag("Isabelle", ref regroup.m_eCondition, MiCharacter.CharacterType.Voodoo);
+
+                GUILayout.EndVertical();
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        static void DrawMiUsables()
+        {
+
+            if (GUILayout.Button(showUsables ? "Hide usables" : "Expand usables")) showUsables = !showUsables;
+            if (!showUsables) return;
+
+            if (usables == null || usablesLastUpdate + 10 < Time.realtimeSinceStartup)
+            {
+                usables = Object.FindObjectsOfType<MiUsable>().Where(u => u.transform.position.sqrMagnitude > 0 && !(u is MiUsableCorpseHiding)).ToArray();
+                selectedUsable = -1;
+            }
+            usablesLastUpdate = Time.realtimeSinceStartup;
+            var start = usablesPage * PAGE_SIZE;
+            var end = System.Math.Min(usablesPage * PAGE_SIZE + PAGE_SIZE, usables.Length);
+
+            GUILayout.BeginVertical("box");
+            for (var i = start; i < end; i++)
+            {
+                var usable = usables[i];
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(usable.name, GUILayout.Width(300));
+                var show = selectedUsable == i;
+                if (GUILayout.Button(show ? "Hide" : "Expand"))
+                {
+                    if (show) selectedUsable = -1;
+                    else selectedUsable = i;
+                }
+                GUILayout.EndHorizontal();
+                if (show)
+                {
+                    GUILayout.BeginVertical("box");
+                    var enabled = GUILayout.Toggle(usable.enabled, usable.enabled ? "Enabled" : "Disabled");
+                    if (enabled != usable.enabled)
+                    {
+                        usable.enabled = enabled;
+                        usable.gameObject.SetActive(enabled);
+                    }
+                    DrawCharacterFlag("Cooper", ref usable.m_eCanUsedBy, MiCharacter.CharacterType.Cooper);
+                    DrawCharacterFlag("Doc", ref usable.m_eCanUsedBy, MiCharacter.CharacterType.McCoy);
+                    DrawCharacterFlag("Hector", ref usable.m_eCanUsedBy, MiCharacter.CharacterType.Trapper);
+                    DrawCharacterFlag("Kate", ref usable.m_eCanUsedBy, MiCharacter.CharacterType.Kate);
+                    DrawCharacterFlag("Isabelle", ref usable.m_eCanUsedBy, MiCharacter.CharacterType.Voodoo);
+
+                    GUILayout.EndVertical();
+                }
+            }
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Prev") && usablesPage > 0)
+            {
+                usablesPage--;
+            }
+            GUILayout.Label($"${usablesPage + 1}/${ (usables.Length + PAGE_SIZE - 1) / PAGE_SIZE}");
+            if (GUILayout.Button("Next") && usablesPage * PAGE_SIZE + PAGE_SIZE < usables.Length)
+            {
+                usablesPage++;
+            }
+            GUILayout.EndHorizontal();
             GUILayout.EndVertical();
         }
 
@@ -256,6 +390,26 @@ namespace Desperados3Mods.ExtendedCheats
             if (before != after) character.m_eLevelInformationMask ^= flag;
 
             GUILayout.EndHorizontal();
+        }
+
+        static int SelectionInputToInt(MiInputActions action)
+        {
+            switch (action)
+            {
+                case MiInputActions.CharacterSelectCooper: return 0;
+                case MiInputActions.CharacterSelectMcCoy: return 1;
+                case MiInputActions.CharacterSelectTrapper: return 2;
+                case MiInputActions.CharacterSelectKate: return 3;
+                case MiInputActions.CharacterSelectVoodoo: return 4;
+                default: return -1;
+            }
+        }
+
+        static void DrawCharacterFlag(string name, ref MiCharacter.CharacterType v, MiCharacter.CharacterType c)
+        {
+            var before = v.HasFlag(c);
+            var after = GUILayout.Toggle(before, name);
+            if (before != after) v ^= c;
         }
     }
 }
