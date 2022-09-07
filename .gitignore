@@ -3,3 +3,4 @@ obj
 .vs
 PostBuild.bat
 releases
+/lib/UnityEngine.ImageConversionModule.dll

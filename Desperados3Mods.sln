@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30621.155
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingsmanEasterEgg", "KingsmanEasterEgg\KingsmanEasterEgg.csproj", "{3EB05C62-18B5-4B5A-83C8-92AB8F2E089E}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterLevelEditor", "BetterLevelEditor\BetterLevelEditor.csproj", "{E02F2431-ACD7-443F-9B46-7C84AD8CC12A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProgressRestorer", "ProgressRestorer\ProgressRestorer.csproj", "{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D1Textures", "D1Textures\D1Textures.csproj", "{857415EC-408D-4599-813C-5FC78238E53B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57C30BB9-95DB-47FA-8764-3A05FA6DEE50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{857415EC-408D-4599-813C-5FC78238E53B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{857415EC-408D-4599-813C-5FC78238E53B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{857415EC-408D-4599-813C-5FC78238E53B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{857415EC-408D-4599-813C-5FC78238E53B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
