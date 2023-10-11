@@ -35,7 +35,7 @@ You can download the mods from the [releases page](https://github.com/benediktwe
 
 To configure the mods you need to launch the game at least once after installing them. Then you can edit the configuration files in `BepInEx/config`.
 
-Alternatively, you can install the [BepInEx.ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager) (again by downloading the files and placing them inside the `BepInEx/plugins` directory). This allows you to bring up an in-game mod settings menu by pressing `F1`. This is also required for the `DevKillsList` mod since it displays the list inside this UI. You probably want to install [RewiredBlocker](https://github.com/benediktwerner/RewiredBlocker) together with the ConfigurationManager to block the game from picking up on your input in the background when the settings menu is open.
+Alternatively, you can install the [BepInEx.ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager) (again by downloading the files and placing them inside the `BepInEx/plugins` directory). This allows you to bring up an in-game mod settings menu by pressing `F1`. This is also required for the `DevKillsList` and `ProgressRestorer` mods since they display the list/show the unlock buttons in that UI. You probably want to install [RewiredBlocker](https://github.com/benediktwerner/RewiredBlocker) together with the ConfigurationManager to block the game from picking up on your input in the background when the settings menu is open.
 
 ### Direct Download Links
 
